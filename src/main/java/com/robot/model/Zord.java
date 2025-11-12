@@ -9,22 +9,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Zord implements IMovable {
-    protected Map<String, ImageView> sprites = new HashMap<>();
-    protected String name;
-    protected ZordFunction function;
+    protected static final Map<String, Image> sprites = new HashMap<>();
+    protected ImageView zordImageView;
+    protected static final String name;
+    protected static final ZordFunction function;
     protected int energy;
 
-    public Zord(Image robotImageIdle, Image robotGifWalking, String name,  ZordFunction function) {
-        sprites.put("Idle", new ImageView(robotImageIdle));
-        sprites.put("Walk", new ImageView(robotGifWalking));
+    public Zord(Image zordImageIdle, Image zordImageWalking, String name,  ZordFunction function) {
+        this.sprites.put("Idle", zordImageIdle);
+        this.sprites.put("Walk", zordImageWalking);
+        this.zordImageView = new ImageView(zordImageIdle);
         this.name = name;
         this.function = function;
         this.energy = 100;
     }
 
-    public ImageView getRobotImageIdle() { return sprites.get("idle"); }
-
-    public ImageView getRobotGifWalking() { return sprites.get("walking"); }
+    public ImageView getZordImage() { return zordImageView; }
 
     public String getName() { return name; }
 
@@ -34,8 +34,16 @@ public abstract class Zord implements IMovable {
 
     @Override
     public void move(double x, double y) {
-        this.sprites.get("idle").setLayoutX(this.sprites.get("idle").getLayoutX() + x);
-        this.sprites.get("idle").setLayoutY(this.sprites.get("idle").getLayoutY() + y);
+        this.zordImageView.setLayoutX(this.zordImageView.getLayoutX() + x);
+        this.zordImageView.setLayoutY(this.zordImageView.getLayoutY() + y);
+    }
+
+    public void showWalkAnimation() {
+        this.zordImageView.setImage(sprites.get("Walk"));
+    }
+
+    public void showIdleAnimation() {
+        this.zordImageView.setImage(sprites.get("Idle"));
     }
 
     public static Image loadingImageSprite(String path) {
