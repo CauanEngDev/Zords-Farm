@@ -2,6 +2,7 @@ package com.robot.model;
 
 import javafx.scene.image.Image;
 import static com.robot.enums.ZordFunction.*;
+import static com.robot.utils.FileFuction.*;
 
 public class StegoZord extends Zord {
     private static final Image STEGO_IMAGE_IDLE = loadingImageSprite("/StegoZord/StegoIdle.png");

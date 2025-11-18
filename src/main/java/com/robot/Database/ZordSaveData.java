@@ -1,7 +1,5 @@
-package com.robot.model;
+package com.robot.Database;
 
-
-import com.robot.enums.ZordFunction;
 
 public class ZordSaveData {
     public String name;

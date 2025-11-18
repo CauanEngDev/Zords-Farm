@@ -1,7 +1,7 @@
 package com.robot.enums;
 
-public enum ZordState {
+public enum AnimationState {
     IDLE,
     WALKING,
-    FIGHTING
+    WORKING
 }

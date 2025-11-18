@@ -1,14 +1,20 @@
 package com.robot;
 
 import com.google.gson.Gson;
+import com.robot.Database.GameSaveData;
+import com.robot.Database.TitanusSaveData;
 import com.robot.model.StegoZord;
-import com.robot.model.ZordSaveData;
+import com.robot.Database.ZordSaveData;
+import com.robot.model.TitanusFabric;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,9 +30,13 @@ public class GameApp extends Application {
     private static final int TILE_GRID = 64;
     private StegoZord stego;
     private ImageView stegoSprite;
+    private TitanusFabric titanus;
+    private ImageView titanusSprite;
     private double targetX = 5 * TILE_GRID;
     private double targetY = 5 * TILE_GRID;
     private final double moveSpeed = 4.0;
+
+    private VBox infoBox;
 
     private final Gson gson = new Gson();
 
@@ -36,6 +46,9 @@ public class GameApp extends Application {
     public void start(@NotNull Stage stage) {
         stego = new StegoZord();
         stegoSprite = stego.getZordImage();
+
+        titanus = new TitanusFabric();
+        titanusSprite = titanus.getImageView();
 
         loadGame();
         
@@ -49,8 +62,16 @@ public class GameApp extends Application {
         stegoSprite.setPreserveRatio(true);
         stegoSprite.setPickOnBounds(false);
 
-        root.getChildren().add(stegoSprite);
+        titanusSprite.setFitWidth(TILE_GRID * 2);
+        titanusSprite.setPreserveRatio(true);
+        titanusSprite.setPickOnBounds(false);
 
+        root.getChildren().addAll(titanusSprite, stegoSprite);
+
+        if (titanusSprite.getLayoutY() == 0 && titanusSprite.getLayoutX() == 0) {
+            titanusSprite.setLayoutY(10 * TILE_GRID);
+            titanusSprite.setLayoutX(5 * TILE_GRID);
+        }
 
         int stegoCol = 5;
         int stegoRow = 5;
@@ -60,13 +81,29 @@ public class GameApp extends Application {
             stegoSprite.setLayoutY(stegoRow * TILE_GRID);
         }
 
+        titanusSprite.setOnMouseClicked(event -> {
+            event.consume();
+            showTitanusInfo(root, event.getSceneX(), event.getSceneY());
+        });
 
         root.setOnMouseClicked(event -> {
-            targetX = event.getX();
-            targetY = event.getY();
+            if (infoBox != null) {
+                root.getChildren().remove(infoBox);
+                infoBox = null;
+            }
+            double clickX = event.getX();
+            double clickY = event.getY();
 
-            targetX -= stegoSprite.getBoundsInParent().getWidth() / 2;
-            targetY -= stegoSprite.getBoundsInParent().getHeight() / 2;
+            double newTargetX = clickX - stegoSprite.getBoundsInParent().getWidth() / 2;
+            double newTargetY = clickY - stegoSprite.getBoundsInParent().getHeight() / 2;
+
+            if (isColliding(newTargetX, newTargetY)) {
+                println("Movimento Bloqueado! O Titanus está aí.");
+                return;
+            }
+
+            targetX = newTargetX;
+            targetY = newTargetY;
 
             println("Novo alvo definido: " + targetX + ", " + targetY);
             saveGame();
@@ -108,19 +145,67 @@ public class GameApp extends Application {
         stage.show();
     }
 
+    private boolean isColliding(double targetX, double targetY) {
+        double margin = 20.0;
+        double tx = titanusSprite.getLayoutX() - margin;
+        double ty = titanusSprite.getLayoutY() - margin;
+        double tw = titanusSprite.getBoundsInParent().getWidth() + (margin * 2);
+        double th = titanusSprite.getBoundsInParent().getHeight() + (margin * 2);
+
+        return targetX >= tx && targetX <= (tx + tw) &&  targetY >= ty && targetY <= (ty + th);
+    }
+
+    private void showTitanusInfo(Pane root, double x, double y) {
+        if (infoBox != null) root.getChildren().remove(infoBox);
+
+        infoBox = new VBox(5);
+        infoBox.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 10; -fx-background-radius: 10;");
+
+        Label lblName =  new Label("Nome: " + TitanusFabric.getName());
+        lblName.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+
+        Label lblLevel = new Label("Nível: " + titanus.getLevel());
+        lblLevel.setStyle("-fx-text-fill: yellow;");
+
+        Label lblStegos = new Label("Stegos: " + titanus.numStegos);
+        lblStegos.setStyle("-fx-text-fill: white;");
+
+        Button btnLevelUp = new Button("Upar (+1)");
+        btnLevelUp.setOnAction(event -> {
+            titanus.levelUp(titanus.getLevel());
+            lblLevel.setText("Nível: " + titanus.getLevel());
+            saveGame();
+        });
+
+        infoBox.getChildren().addAll(lblName, lblLevel, lblStegos, btnLevelUp);
+
+        infoBox.setLayoutX(x + 20);
+        infoBox.setLayoutY(y - 50);
+
+        root.getChildren().add(infoBox);
+    }
+
     private void saveGame() {
         println("Salvando progresso...");
         try (FileWriter writer = new FileWriter("saveTeste.json")) {
-            ZordSaveData saveFile = new ZordSaveData();
+            GameSaveData data = new GameSaveData();
 
-            saveFile.name = stego.getName();
-            saveFile.zordType = stego.getClass().getSimpleName();
-            saveFile.energy = stego.getEnergy();
+            data.stegoData = new ZordSaveData();
+            data.stegoData.name = stego.getName();
+            data.stegoData.zordType = stego.getClass().getSimpleName();
+            data.stegoData.x = targetX;
+            data.stegoData.y = targetY;
+            data.stegoData.energy = stego.getEnergy();
 
-            saveFile.x = targetX;
-            saveFile.y = targetY;
+            data.titanusData = new TitanusSaveData();
+            data.titanusData.name = TitanusFabric.getName();
+            data.titanusData.zordType = titanus.getClass().getSimpleName();
+            data.titanusData.x = titanusSprite.getLayoutX();
+            data.titanusData.y = titanusSprite.getLayoutY();
+            data.titanusData.level = titanus.getLevel();
+            data.titanusData.numStegos = titanus.numStegos;
 
-            gson.toJson(saveFile, writer);
+            gson.toJson(data, writer);
 
             println("Progresso Salvo com sucesso!");
         } catch (Exception e) {
@@ -131,18 +216,28 @@ public class GameApp extends Application {
     private void loadGame() {
         println("Carregando progresso...");
         try (FileReader reader = new FileReader("saveTeste.json")) {
-            ZordSaveData saveFile = gson.fromJson(reader, ZordSaveData.class);
+            GameSaveData data = gson.fromJson(reader, GameSaveData.class);
 
-            if (saveFile != null) {
-                stegoSprite.setLayoutX(saveFile.x);
-                stegoSprite.setLayoutY(saveFile.y);
+            if (data != null) {
+                if (data.stegoData != null) {
+                    stegoSprite.setLayoutX(data.stegoData.x);
+                    stegoSprite.setLayoutY(data.stegoData.y);
 
-                targetX = saveFile.x;
-                targetY = saveFile.y;
+                    targetX = data.stegoData.x;
+                    targetY = data.stegoData.y;
+                }
+
+                if (data.titanusData != null) {
+                    titanusSprite.setLayoutX(data.titanusData.x);
+                    titanusSprite.setLayoutY(data.titanusData.y);
+                    titanus.setLevel(data.titanusData.level);
+                    titanus.numStegos = data.titanusData.numStegos;
+                }
 
                 println("Progresso carregado com sucesso!");
             }
         } catch(Exception e) {
+            println("Save não encontrado, começando novo jogo.");
             saveGame();
         }
     }
