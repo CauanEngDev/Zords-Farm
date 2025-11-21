@@ -1,5 +1,6 @@
 package com.robot.utils;
 
+import com.robot.enums.AnimationState;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 public class SpriteAnimator {
     private final ImageView targetImageView;
-    private final Map<Object, Image> animations = new HashMap<>();
+    private final Map<AnimationState, Image> animations = new HashMap<>();
 
     private AnimationTimer animationTimer;
     private Object currentState;
@@ -26,11 +27,11 @@ public class SpriteAnimator {
         initializeTimer();
     }
 
-    public void addAnimation(Object stateKey, Image spriteSheet) {
+    public void addAnimation(AnimationState stateKey, Image spriteSheet) {
         animations.put(stateKey, spriteSheet);
     }
 
-    public void play(Object stateKey) {
+    public void play(AnimationState stateKey) {
         if (currentState == stateKey) return;
 
         currentState = stateKey;

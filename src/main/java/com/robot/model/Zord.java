@@ -23,6 +23,7 @@ public abstract class Zord implements IAnimatable{
 
         this.animator.addAnimation(IDLE, zordImageIdle);
         this.animator.addAnimation(WALKING, zordImageWalking);
+        this.animator.addAnimation(WORKING, zordImageWork);
 
         this.animator.play(IDLE);
     }

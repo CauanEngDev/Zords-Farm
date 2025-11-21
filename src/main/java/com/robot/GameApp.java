@@ -8,6 +8,8 @@ import com.robot.Database.ZordSaveData;
 import com.robot.model.TitanusFabric;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -42,6 +44,11 @@ public class GameApp extends Application {
 
     private static final Logger logger = Logger.getLogger(GameApp.class.getName());
 
+    private static final int MAP_ROWS = 12;
+    private static final int MAP_COLUMNS = 20;
+
+    private int[][] collisionMap = new int[MAP_COLUMNS][MAP_ROWS];
+
     @Override
     public void start(@NotNull Stage stage) {
         stego = new StegoZord();
@@ -51,7 +58,8 @@ public class GameApp extends Application {
         titanusSprite = titanus.getImageView();
 
         loadGame();
-        
+
+        initializeCollisionMap();
         Pane root = new Pane();
         root.setStyle("-fx-background-color: #3d8c40");
         int windowWidth = 1280;
@@ -69,7 +77,7 @@ public class GameApp extends Application {
         root.getChildren().addAll(titanusSprite, stegoSprite);
 
         if (titanusSprite.getLayoutY() == 0 && titanusSprite.getLayoutX() == 0) {
-            titanusSprite.setLayoutY(10 * TILE_GRID);
+            titanusSprite.setLayoutY(TILE_GRID);
             titanusSprite.setLayoutX(5 * TILE_GRID);
         }
 
@@ -114,27 +122,29 @@ public class GameApp extends Application {
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-            double currentX = stegoSprite.getLayoutX();
-            double currentY = stegoSprite.getLayoutY();
+                double currentX = stegoSprite.getLayoutX();
+                double currentY = stegoSprite.getLayoutY();
 
-            double deltaX = targetX - currentX;
-            double deltaY = targetY - currentY;
-            double distance = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+                double deltaX = targetX - currentX;
+                double deltaY = targetY - currentY;
+                double distance = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 
-            if (distance < moveSpeed) {
-                stegoSprite.setLayoutX(targetX);
-                stegoSprite.setLayoutY(targetY);
+                if (distance < moveSpeed) {
+                    stegoSprite.setLayoutX(targetX);
+                    stegoSprite.setLayoutY(targetY);
 
-                stego.showIdleAnimation();
-            } else {
-                double stepX = (deltaX / distance) * moveSpeed;
-                double stepY = (deltaY / distance) * moveSpeed;
+                    stego.showIdleAnimation();
+                } else {
+                    if (targetX < currentX) stegoSprite.setScaleX(-1.0);
+                    else if (targetX > currentX) stegoSprite.setScaleX(1.0);
+                    double stepX = (deltaX / distance) * moveSpeed;
+                    double stepY = (deltaY / distance) * moveSpeed;
 
-                stegoSprite.setLayoutX(currentX + stepX);
-                stegoSprite.setLayoutY(currentY + stepY);
+                    stegoSprite.setLayoutX(currentX + stepX);
+                    stegoSprite.setLayoutY(currentY + stepY);
 
-                stego.showWalkAnimation();
-            }
+                    stego.showWalkAnimation();
+                }
             }
         };
 
@@ -145,14 +155,24 @@ public class GameApp extends Application {
         stage.show();
     }
 
-    private boolean isColliding(double targetX, double targetY) {
-        double margin = 20.0;
-        double tx = titanusSprite.getLayoutX() - margin;
-        double ty = titanusSprite.getLayoutY() - margin;
-        double tw = titanusSprite.getBoundsInParent().getWidth() + (margin * 2);
-        double th = titanusSprite.getBoundsInParent().getHeight() + (margin * 2);
+    private boolean isColliding(double futureX, double futureY) {
+        Bounds titanusBounds = titanusSprite.getBoundsInParent();
+        Bounds stegoFutureBounds = new BoundingBox(
+                futureX,
+                futureY,
+                stegoSprite.getBoundsInParent().getWidth(),
+                stegoSprite.getBoundsInParent().getHeight()
+        );
 
-        return targetX >= tx && targetX <= (tx + tw) &&  targetY >= ty && targetY <= (ty + th);
+        double shirk = 20.0;
+
+        if (stegoFutureBounds.intersects(titanusBounds.getMinX() + shirk,
+                                        titanusBounds.getMinY() + shirk,
+                                        titanusBounds.getWidth() - (2 * shirk),
+                                        titanusBounds.getHeight() - (2 * shirk))) {
+            return true;
+        }
+        return false;
     }
 
     private void showTitanusInfo(Pane root, double x, double y) {
@@ -240,6 +260,22 @@ public class GameApp extends Application {
             println("Save não encontrado, começando novo jogo.");
             saveGame();
         }
+    }
+
+    private void initializeCollisionMap() {
+        for (int i = 0; i < MAP_ROWS; i++) {
+            for (int j = 0; j < MAP_COLUMNS; j++) {
+                collisionMap[i][j] = 0;
+            }
+        }
+
+        int titanusCol = 5;
+        int titanusRow = 1;
+
+        collisionMap[titanusRow][titanusCol] = 9;
+        collisionMap[titanusRow][titanusCol + 1] = 9;
+        collisionMap[titanusRow + 1][titanusCol] = 9;
+        collisionMap[titanusRow + 1][titanusCol + 1] = 9;
     }
 
     public static void main(String[] args) {
