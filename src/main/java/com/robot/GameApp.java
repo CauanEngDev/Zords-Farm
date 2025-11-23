@@ -3,9 +3,12 @@ package com.robot;
 import com.google.gson.Gson;
 import com.robot.Database.GameSaveData;
 import com.robot.Database.TitanusSaveData;
+import com.robot.controller.ZordCreate;
 import com.robot.model.StegoZord;
 import com.robot.Database.ZordSaveData;
+import static com.robot.Database.ZordsData.*;
 import com.robot.model.TitanusFabric;
+import static com.robot.utils.FileFuction.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.BoundingBox;
@@ -49,6 +52,7 @@ public class GameApp extends Application {
 
     private int[][] collisionMap = new int[MAP_COLUMNS][MAP_ROWS];
 
+    private Pane root;
     @Override
     public void start(@NotNull Stage stage) {
         stego = new StegoZord();
@@ -60,7 +64,7 @@ public class GameApp extends Application {
         loadGame();
 
         initializeCollisionMap();
-        Pane root = new Pane();
+        this.root = new Pane();
         root.setStyle("-fx-background-color: #3d8c40");
         int windowWidth = 1280;
         int windowHeight = 768;
@@ -197,7 +201,21 @@ public class GameApp extends Application {
             saveGame();
         });
 
-        infoBox.getChildren().addAll(lblName, lblLevel, lblStegos, btnLevelUp);
+        Button btnCreateZord = new Button("Criar Zord");
+        btnCreateZord.setOnAction(event -> {
+            if (stegoZords.size() <= titanus.numStegos) {
+                titanus.getAnimator().setActionOnFrame(18, ()-> {
+                    stegoSpawn();
+                });
+
+                titanus.getAnimator().setActionOnFinish(() ->{
+                    titanus.showIdleAnimation();
+                })
+                titanus.showCreateAnimation();
+            } else println("Número máximo de StegoZords no mapa!");
+        });
+
+        infoBox.getChildren().addAll(lblName, lblLevel, lblStegos, btnLevelUp, btnCreateZord);
 
         infoBox.setLayoutX(x + 20);
         infoBox.setLayoutY(y - 50);
@@ -276,6 +294,22 @@ public class GameApp extends Application {
         collisionMap[titanusRow][titanusCol + 1] = 9;
         collisionMap[titanusRow + 1][titanusCol] = 9;
         collisionMap[titanusRow + 1][titanusCol + 1] = 9;
+    }
+
+    private void stegoSpawn() {
+        StegoZord newStego = new ZordCreate().createStego();
+        ImageView newStegoSprite = newStego.getZordImage();
+        newStegoSprite.setFitWidth(TILE_GRID);
+        newStegoSprite.setPreserveRatio(true);
+        newStegoSprite.setPickOnBounds(false);
+
+        double stegoSize = newStegoSprite.getBoundsInParent().getWidth();
+        double titanusSize = titanusSprite.getBoundsInParent().getWidth();
+
+        newStegoSprite.setLayoutX(titanusSprite.getLayoutX() + titanusSize - 10);
+        newStegoSprite.setLayoutY(titanusSprite.getLayoutY() + 10);
+
+        root.getChildren().add(newStegoSprite);
     }
 
     public static void main(String[] args) {
