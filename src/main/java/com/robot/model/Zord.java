@@ -19,6 +19,10 @@ public abstract class Zord implements IAnimatable{
         this.function = function;
         this.energy = 100;
 
+        this.zordImageView.setScaleX(1);
+        this.zordImageView.setScaleY(1);
+        this.zordImageView.setPreserveRatio(true);
+
         this.animator = new SpriteAnimator(this.zordImageView);
 
         this.animator.addAnimation(IDLE, zordImageIdle);

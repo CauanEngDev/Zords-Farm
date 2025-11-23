@@ -16,11 +16,16 @@ public class SpriteAnimator {
     private AnimationTimer animationTimer;
     private Object currentState;
 
-    private int cols = 6;
-    private int totalFrames = 36;
+    private final int cols = 6;
+    private final int totalFrames = 36;
     private int currentFrame = 0;
     private long lastUpdate = 0;
-    private long frameDuration = 83;
+    private final long frameDuration = 83;
+
+    private Runnable onFrameAction = null;
+    private int targetFrame = -1;
+    private Runnable onFisnishFrame = null;
+    private boolean isPlayingOnce = false;
 
     public SpriteAnimator(ImageView target) {
         this.targetImageView = target;
@@ -40,12 +45,13 @@ public class SpriteAnimator {
         Image sheet = animations.get(stateKey);
         if (sheet != null) {
             targetImageView.setImage(sheet);
+
+            int frameW = (int) (sheet.getWidth() / cols);
+            int frameH = (int) (sheet.getHeight() / (totalFrames / cols));
+
+            targetImageView.setViewport(new Rectangle2D(0, 0, frameW, frameH));
             animationTimer.start();
         }
-    }
-
-    public void stop() {
-        animationTimer.stop();
     }
 
     public void initializeTimer() {
@@ -58,6 +64,11 @@ public class SpriteAnimator {
                 if (nowMS - lastUpdate < frameDuration) return;
                 lastUpdate = nowMS;
 
+                if (currentFrame == targetFrame && onFrameAction != null) {
+                    onFrameAction.run();
+                    onFrameAction = null;
+                }
+
                 currentFrame = (currentFrame + 1) % totalFrames;
 
                 Image currentSheet = animations.get(currentState);
@@ -69,7 +80,34 @@ public class SpriteAnimator {
                 int row = currentFrame / cols;
 
                 targetImageView.setViewport(new Rectangle2D(col * frameW, row * frameH, frameW, frameH));
+
+                if (currentFrame >= totalFrames - 1) {
+                    if (isPlayingOnce && onFisnishFrame != null) {
+                        onFisnishFrame.run();
+
+                        onFisnishFrame = null;
+                        isPlayingOnce = false;
+                        animationTimer.stop();
+                        return;
+                    }
+
+                    if (!isPlayingOnce) currentFrame = 0;
+                }
             }
         };
+    }
+
+    public void setActionOnFrame(int frameIndex, Runnable action) {
+        this.targetFrame = frameIndex;
+        this.onFrameAction = action;
+    }
+
+    public void setActionOnFinish(Runnable action) {
+        this.onFisnishFrame = action;
+    }
+
+    public void playOneShot(AnimationState stateKey) {
+        this.isPlayingOnce = true;
+        play(stateKey);
     }
 }

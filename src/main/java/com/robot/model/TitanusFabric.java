@@ -9,14 +9,21 @@ import static com.robot.enums.AnimationState.*;
 public class TitanusFabric implements IAnimatable {
     private static final String name = "TitanusZord Fabric";
     private int titanusLevel = 1;
-    public int numStegos = 2;
+    public int numStegos = 3;
 
     private ImageView titanusImageView;
     private final SpriteAnimator animator;
+
     public TitanusFabric() {
         Image titanusIdle = loadingImageSprite("/TitanusFabric/TitanusIdle.png");
         this.titanusImageView = new ImageView(titanusIdle);
         Image titanusCreate = loadingImageSprite("/TitanusFabric/TitanusCreate.png");
+
+        this.titanusImageView.setScaleX(1);
+        this.titanusImageView.setScaleY(1);
+        this.titanusImageView.setPreserveRatio(true);
+
+        this.titanusImageView.setTranslateY(-30.0);
 
         this.animator = new SpriteAnimator(titanusImageView);
 
@@ -36,7 +43,7 @@ public class TitanusFabric implements IAnimatable {
     }
 
     public void showCreateAnimation() {
-        this.animator.play(WORKING);
+        this.animator.playOneShot(WORKING);
     }
 
     public ImageView getImageView() {

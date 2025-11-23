@@ -8,7 +8,6 @@ import com.robot.model.StegoZord;
 import com.robot.Database.ZordSaveData;
 import static com.robot.Database.ZordsData.*;
 import com.robot.model.TitanusFabric;
-import static com.robot.utils.FileFuction.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.BoundingBox;
@@ -50,7 +49,7 @@ public class GameApp extends Application {
     private static final int MAP_ROWS = 12;
     private static final int MAP_COLUMNS = 20;
 
-    private int[][] collisionMap = new int[MAP_COLUMNS][MAP_ROWS];
+    private int[][] collisionMap = new int[MAP_ROWS][MAP_COLUMNS];
 
     private Pane root;
     @Override
@@ -70,12 +69,7 @@ public class GameApp extends Application {
         int windowHeight = 768;
         Scene scene = new Scene(root,  windowWidth, windowHeight);
 
-        stegoSprite.setFitWidth(TILE_GRID);
-        stegoSprite.setPreserveRatio(true);
         stegoSprite.setPickOnBounds(false);
-
-        titanusSprite.setFitWidth(TILE_GRID * 2);
-        titanusSprite.setPreserveRatio(true);
         titanusSprite.setPickOnBounds(false);
 
         root.getChildren().addAll(titanusSprite, stegoSprite);
@@ -203,14 +197,15 @@ public class GameApp extends Application {
 
         Button btnCreateZord = new Button("Criar Zord");
         btnCreateZord.setOnAction(event -> {
-            if (stegoZords.size() <= titanus.numStegos) {
+            if (stegoZords.size() < titanus.numStegos) {
                 titanus.getAnimator().setActionOnFrame(18, ()-> {
                     stegoSpawn();
                 });
 
                 titanus.getAnimator().setActionOnFinish(() ->{
                     titanus.showIdleAnimation();
-                })
+                });
+
                 titanus.showCreateAnimation();
             } else println("Número máximo de StegoZords no mapa!");
         });
@@ -275,8 +270,7 @@ public class GameApp extends Application {
                 println("Progresso carregado com sucesso!");
             }
         } catch(Exception e) {
-            println("Save não encontrado, começando novo jogo.");
-            saveGame();
+            logger.log(Level.INFO, "Save não encontrado, iniciando novo jogo.");
         }
     }
 
@@ -303,11 +297,11 @@ public class GameApp extends Application {
         newStegoSprite.setPreserveRatio(true);
         newStegoSprite.setPickOnBounds(false);
 
-        double stegoSize = newStegoSprite.getBoundsInParent().getWidth();
-        double titanusSize = titanusSprite.getBoundsInParent().getWidth();
+        double stegoSize = newStegoSprite.getBoundsInParent().getHeight();
+        Bounds titanusSize = titanusSprite.getBoundsInParent();
 
-        newStegoSprite.setLayoutX(titanusSprite.getLayoutX() + titanusSize - 10);
-        newStegoSprite.setLayoutY(titanusSprite.getLayoutY() + 10);
+        newStegoSprite.setLayoutX(titanusSprite.getLayoutX() - titanusSize.getWidth());
+        newStegoSprite.setLayoutY(titanusSprite.getLayoutY() + titanusSize.getHeight() + stegoSize);
 
         root.getChildren().add(newStegoSprite);
     }
