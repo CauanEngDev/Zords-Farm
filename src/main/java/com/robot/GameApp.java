@@ -19,7 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
-import static com.robot.utils.IOFunction.println;
+import static com.robot.utils.GameFunction.println;
 
 
 public class GameApp extends Application {

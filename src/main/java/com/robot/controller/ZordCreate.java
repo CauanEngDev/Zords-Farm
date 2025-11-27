@@ -8,7 +8,7 @@ import com.robot.model.TriceraZord;
 import com.robot.model.Zord;
 
 import static com.robot.Database.ZordsData.*;
-import static com.robot.utils.IOFunction.println;
+import static com.robot.utils.GameFunction.println;
 
 public class ZordCreate {
     public void createZordByTitanus(Zords type) {

@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.robot.Database.GameSaveData;
 import com.robot.Database.ZordsInfoData;
 import com.robot.model.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
 import java.io.FileReader;
@@ -16,7 +15,8 @@ import java.util.logging.Logger;
 
 
 import static com.robot.Database.ZordsData.*;
-import static com.robot.utils.IOFunction.println;
+import static com.robot.utils.GameFunction.clearGameWorld;
+import static com.robot.utils.GameFunction.println;
 
 public class SaveController {
     private static final Logger logger = Logger.getLogger(SaveController.class.getName());
@@ -83,13 +83,5 @@ public class SaveController {
         } catch(Exception e) {
             logger.log(Level.INFO, "Save não encontrado, iniciando novo jogo.");
         }
-    }
-
-    private void clearGameWorld(Pane root) {
-        root.getChildren().removeIf(node -> node instanceof ImageView);
-
-        stegoZords.clear();
-        redMagicZords.clear();
-        triceraZords.clear();
     }
 }

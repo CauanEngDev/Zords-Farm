@@ -10,7 +10,7 @@ import javafx.scene.layout.Pane;
 import java.util.Set;
 
 public class SelectionManager {
-    private Object selectedEntity = null;
+    private ISelectable selectedEntity = null;
     private final Pane root;
 
     public SelectionManager(Pane root, GameApp app) {
@@ -18,26 +18,29 @@ public class SelectionManager {
     }
 
     public void setupInputHandlers(Set<Zord> allZords, TitanusFabric titanusFabric) {
-        root.setOnKeyPressed(event -> {
+        for (Zord zord : allZords)
+            registerUnitClick(zord);
+
+        registerUnitClick(titanusFabric);
+
+        root.setOnMouseClicked(event -> {
             if (selectedEntity != null) {
-                deselectCurrent();
+                double targetX = event.getX();
+                double targetY = event.getY();
+
+                if (event.getClickCount() == 2) {
+                    deselectCurrent();
+                }
             }
         });
-
-        registerUnitClick(stego, allZords);
-        registerUnitClick(titanusFabric, null);
     }
 
     public void deselectCurrent() {
-        if (selectedEntity instanceof Zord)
-            ((Zord) selectedEntity).deselect();
-        else if (selectedEntity instanceof TitanusFabric)
-            ((TitanusFabric) selectedEntity).deselect();
-
+        selectedEntity.deselect();
         selectedEntity = null;
     }
 
-    public void registerUnitClick(ISelectable entity, Set<Zord> allZords) {
+    public void registerUnitClick(ISelectable entity) {
         ImageView view = entity.getImageView();
 
         view.setOnMouseClicked(event -> {
@@ -49,7 +52,7 @@ public class SelectionManager {
                 if (selectedEntity != null)
                     deselectCurrent();
 
-                ((Zord) selectedEntity).select();
+                entity.select();
                 selectedEntity = entity;
             }
         });
