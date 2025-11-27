@@ -33,35 +33,21 @@ import static com.robot.utils.IOFunction.println;
 public class GameApp extends Application {
     private static final int TILE_GRID = 64;
     private StegoZord stego;
-    private ImageView stegoSprite;
     private TitanusFabric titanus;
-    private ImageView titanusSprite;
     private double targetX = 5 * TILE_GRID;
     private double targetY = 5 * TILE_GRID;
     private final double moveSpeed = 4.0;
 
     private VBox infoBox;
 
-    private final Gson gson = new Gson();
-
-    private static final Logger logger = Logger.getLogger(GameApp.class.getName());
-
     private static final int MAP_ROWS = 12;
     private static final int MAP_COLUMNS = 20;
 
-    private int[][] collisionMap = new int[MAP_ROWS][MAP_COLUMNS];
+    private final int[][] collisionMap = new int[MAP_ROWS][MAP_COLUMNS];
 
     private Pane root;
     @Override
     public void start(@NotNull Stage stage) {
-        stego = new StegoZord();
-        stegoSprite = stego.getZordImage();
-
-        titanus = new TitanusFabric();
-        titanusSprite = titanus.getImageView();
-
-        loadGame();
-
         initializeCollisionMap();
         this.root = new Pane();
         root.setStyle("-fx-background-color: #3d8c40");
@@ -69,23 +55,6 @@ public class GameApp extends Application {
         int windowHeight = 768;
         Scene scene = new Scene(root,  windowWidth, windowHeight);
 
-        stegoSprite.setPickOnBounds(false);
-        titanusSprite.setPickOnBounds(false);
-
-        root.getChildren().addAll(titanusSprite, stegoSprite);
-
-        if (titanusSprite.getLayoutY() == 0 && titanusSprite.getLayoutX() == 0) {
-            titanusSprite.setLayoutY(TILE_GRID);
-            titanusSprite.setLayoutX(5 * TILE_GRID);
-        }
-
-        int stegoCol = 5;
-        int stegoRow = 5;
-
-        if (stegoSprite.getLayoutX() == 0 && stegoSprite.getLayoutY() == 0){
-            stegoSprite.setLayoutX(stegoCol * TILE_GRID);
-            stegoSprite.setLayoutY(stegoRow * TILE_GRID);
-        }
 
         titanusSprite.setOnMouseClicked(event -> {
             event.consume();
@@ -190,7 +159,7 @@ public class GameApp extends Application {
 
         Button btnLevelUp = new Button("Upar (+1)");
         btnLevelUp.setOnAction(event -> {
-            titanus.levelUp(titanus.getLevel());
+            titanus.levelUp();
             lblLevel.setText("Nível: " + titanus.getLevel());
             saveGame();
         });
@@ -198,7 +167,7 @@ public class GameApp extends Application {
         Button btnCreateZord = new Button("Criar Zord");
         btnCreateZord.setOnAction(event -> {
             if (stegoZords.size() < titanus.numStegos) {
-                titanus.getAnimator().setActionOnFrame(18, ()-> {
+                titanus.getAnimator().setActionOnFrame(17, ()-> {
                     stegoSpawn();
                 });
 
@@ -218,61 +187,7 @@ public class GameApp extends Application {
         root.getChildren().add(infoBox);
     }
 
-    private void saveGame() {
-        println("Salvando progresso...");
-        try (FileWriter writer = new FileWriter("saveTeste.json")) {
-            GameSaveData data = new GameSaveData();
 
-            data.stegoData = new ZordSaveData();
-            data.stegoData.name = stego.getName();
-            data.stegoData.zordType = stego.getClass().getSimpleName();
-            data.stegoData.x = targetX;
-            data.stegoData.y = targetY;
-            data.stegoData.energy = stego.getEnergy();
-
-            data.titanusData = new TitanusSaveData();
-            data.titanusData.name = TitanusFabric.getName();
-            data.titanusData.zordType = titanus.getClass().getSimpleName();
-            data.titanusData.x = titanusSprite.getLayoutX();
-            data.titanusData.y = titanusSprite.getLayoutY();
-            data.titanusData.level = titanus.getLevel();
-            data.titanusData.numStegos = titanus.numStegos;
-
-            gson.toJson(data, writer);
-
-            println("Progresso Salvo com sucesso!");
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Falha ao salvar o jogo", e);
-        }
-    }
-
-    private void loadGame() {
-        println("Carregando progresso...");
-        try (FileReader reader = new FileReader("saveTeste.json")) {
-            GameSaveData data = gson.fromJson(reader, GameSaveData.class);
-
-            if (data != null) {
-                if (data.stegoData != null) {
-                    stegoSprite.setLayoutX(data.stegoData.x);
-                    stegoSprite.setLayoutY(data.stegoData.y);
-
-                    targetX = data.stegoData.x;
-                    targetY = data.stegoData.y;
-                }
-
-                if (data.titanusData != null) {
-                    titanusSprite.setLayoutX(data.titanusData.x);
-                    titanusSprite.setLayoutY(data.titanusData.y);
-                    titanus.setLevel(data.titanusData.level);
-                    titanus.numStegos = data.titanusData.numStegos;
-                }
-
-                println("Progresso carregado com sucesso!");
-            }
-        } catch(Exception e) {
-            logger.log(Level.INFO, "Save não encontrado, iniciando novo jogo.");
-        }
-    }
 
     private void initializeCollisionMap() {
         for (int i = 0; i < MAP_ROWS; i++) {
@@ -293,15 +208,12 @@ public class GameApp extends Application {
     private void stegoSpawn() {
         StegoZord newStego = new ZordCreate().createStego();
         ImageView newStegoSprite = newStego.getZordImage();
-        newStegoSprite.setFitWidth(TILE_GRID);
-        newStegoSprite.setPreserveRatio(true);
-        newStegoSprite.setPickOnBounds(false);
 
         double stegoSize = newStegoSprite.getBoundsInParent().getHeight();
         Bounds titanusSize = titanusSprite.getBoundsInParent();
 
-        newStegoSprite.setLayoutX(titanusSprite.getLayoutX() - titanusSize.getWidth());
-        newStegoSprite.setLayoutY(titanusSprite.getLayoutY() + titanusSize.getHeight() + stegoSize);
+        newStegoSprite.setLayoutX(titanusSprite.getLayoutX() - 70);
+        newStegoSprite.setLayoutY(titanusSprite.getLayoutY() + stegoSize + 40);
 
         root.getChildren().add(newStegoSprite);
     }

@@ -11,7 +11,7 @@ public class TitanusFabric implements IAnimatable {
     private int titanusLevel = 1;
     public int numStegos = 3;
 
-    private ImageView titanusImageView;
+    private final ImageView titanusImageView;
     private final SpriteAnimator animator;
 
     public TitanusFabric() {
@@ -22,8 +22,7 @@ public class TitanusFabric implements IAnimatable {
         this.titanusImageView.setScaleX(1);
         this.titanusImageView.setScaleY(1);
         this.titanusImageView.setPreserveRatio(true);
-
-        this.titanusImageView.setTranslateY(-30.0);
+        this.titanusImageView.setPickOnBounds(false);
 
         this.animator = new SpriteAnimator(titanusImageView);
 
@@ -62,7 +61,7 @@ public class TitanusFabric implements IAnimatable {
         this.titanusLevel = titanusLevel;
     }
 
-    public void levelUp(int titanusLevel) {
+    public void levelUp() {
         this.titanusLevel++;
     }
 }

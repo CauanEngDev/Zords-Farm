@@ -1,9 +1,10 @@
 package com.robot.Database;
 
 
+import com.robot.enums.ZordFunction;
+
 public class ZordSaveData {
-    public String name;
-    public String zordType;
+    public ZordFunction zordFunction;
     public double x;
     public double y;
     public int energy;

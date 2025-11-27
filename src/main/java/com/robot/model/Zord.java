@@ -22,6 +22,7 @@ public abstract class Zord implements IAnimatable{
         this.zordImageView.setScaleX(1);
         this.zordImageView.setScaleY(1);
         this.zordImageView.setPreserveRatio(true);
+        this.zordImageView.setPickOnBounds(false);
 
         this.animator = new SpriteAnimator(this.zordImageView);
 
@@ -52,4 +53,6 @@ public abstract class Zord implements IAnimatable{
     public int getEnergy() { return energy; }
 
     public ZordFunction getFunction() { return function; }
+
+    public void setEnergy(int energy) { this.energy = energy; }
 }

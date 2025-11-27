@@ -42,6 +42,9 @@ public class SpriteAnimator {
         currentState = stateKey;
         currentFrame = 0;
 
+        if (stateKey == AnimationState.IDLE || stateKey == AnimationState.WALKING)
+            this.isPlayingOnce = false;
+
         Image sheet = animations.get(stateKey);
         if (sheet != null) {
             targetImageView.setImage(sheet);
@@ -87,7 +90,6 @@ public class SpriteAnimator {
 
                         onFisnishFrame = null;
                         isPlayingOnce = false;
-                        animationTimer.stop();
                         return;
                     }
 
