@@ -1,4 +1,4 @@
-package com.robot.model;
+package com.robot.Interfaces;
 
 import com.robot.utils.SpriteAnimator;
 

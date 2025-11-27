@@ -2,8 +2,7 @@ package com.robot.controller;
 
 import com.google.gson.Gson;
 import com.robot.Database.GameSaveData;
-import com.robot.Database.ZordSaveData;
-import com.robot.Database.ZordsData;
+import com.robot.Database.ZordsInfoData;
 import com.robot.model.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -34,11 +33,11 @@ public class SaveController {
             GameSaveData data = new GameSaveData();
 
             for (Zord zord : zords) {
-                ZordSaveData zsd = new ZordSaveData();
+                ZordsInfoData zsd = new ZordsInfoData();
                 zsd.zordFunction = zord.getFunction();
                 zsd.energy = zord.getEnergy();
-                zsd.x = zord.getZordImage().getLayoutX();
-                zsd.y = zord.getZordImage().getLayoutY();
+                zsd.x = zord.getImageView().getLayoutX();
+                zsd.y = zord.getImageView().getLayoutY();
 
                 data.allZords.add(zsd);
             }
@@ -65,13 +64,13 @@ public class SaveController {
             if (data != null) {
                 clearGameWorld(root);
 
-                for (ZordSaveData zsd : data.allZords) {
+                for (ZordsInfoData zsd : data.allZords) {
                     Zord newZord = createControl.createZordByLoad(zsd.zordFunction);
                     newZord.setEnergy(zsd.energy);
-                    newZord.getZordImage().setLayoutX(zsd.x);
-                    newZord.getZordImage().setLayoutY(zsd.y);
+                    newZord.getImageView().setLayoutX(zsd.x);
+                    newZord.getImageView().setLayoutY(zsd.y);
 
-                    root.getChildren().add(newZord.getZordImage());
+                    root.getChildren().add(newZord.getImageView());
                 }
 
                 titanusFabric.setLevel(data.titanusData.level);

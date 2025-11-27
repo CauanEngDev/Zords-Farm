@@ -1,15 +1,20 @@
 package com.robot.model;
 
 import static com.robot.utils.FileFuction.*;
+
+import com.robot.Interfaces.IAnimatable;
+import com.robot.Interfaces.ISelectable;
 import com.robot.utils.SpriteAnimator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+
 import static com.robot.enums.AnimationState.*;
 
-public class TitanusFabric implements IAnimatable {
+public class TitanusFabric implements IAnimatable, ISelectable {
     private static final String name = "TitanusZord Fabric";
     private int titanusLevel = 1;
     public int numStegos = 3;
+    private boolean selected;
 
     private final ImageView titanusImageView;
     private final SpriteAnimator animator;
@@ -45,6 +50,26 @@ public class TitanusFabric implements IAnimatable {
         this.animator.playOneShot(WORKING);
     }
 
+    @Override
+    public void select() {
+        if (selected) return;
+        selected = true;
+        this.titanusImageView.setStyle("-fx-effect: dropshadow(three-pass-box, yellow, 10, 0.5, 0, 0);");
+    }
+
+    @Override
+    public void deselect() {
+        if (!selected) return;
+        selected = false;
+        this.titanusImageView.setStyle(null);
+    }
+
+    @Override
+    public boolean isSelected() {
+        return selected;
+    }
+
+    @Override
     public ImageView getImageView() {
         return titanusImageView;
     }

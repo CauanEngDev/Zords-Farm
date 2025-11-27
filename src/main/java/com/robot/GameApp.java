@@ -1,11 +1,8 @@
 package com.robot;
 
-import com.google.gson.Gson;
-import com.robot.Database.GameSaveData;
-import com.robot.Database.TitanusSaveData;
 import com.robot.controller.ZordCreate;
 import com.robot.model.StegoZord;
-import com.robot.Database.ZordSaveData;
+
 import static com.robot.Database.ZordsData.*;
 import com.robot.model.TitanusFabric;
 import javafx.animation.AnimationTimer;
@@ -21,11 +18,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static com.robot.utils.IOFunction.println;
 
@@ -207,7 +199,7 @@ public class GameApp extends Application {
 
     private void stegoSpawn() {
         StegoZord newStego = new ZordCreate().createStego();
-        ImageView newStegoSprite = newStego.getZordImage();
+        ImageView newStegoSprite = newStego.getImageView();
 
         double stegoSize = newStegoSprite.getBoundsInParent().getHeight();
         Bounds titanusSize = titanusSprite.getBoundsInParent();
