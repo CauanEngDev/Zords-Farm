@@ -23,7 +23,7 @@ public class SaveController {
     private final Gson gson = new Gson();
     private final ZordCreate createControl = new ZordCreate();
 
-    private void saveGame(TitanusFabric titanusFabric) {
+    public void saveGame(TitanusFabric titanusFabric) {
         println("Salvando progresso...");
         Set<Zord> zords = new HashSet<>();
         zords.addAll(stegoZords);
@@ -56,7 +56,7 @@ public class SaveController {
         }
     }
 
-    private void loadGame(TitanusFabric titanusFabric, Pane root) {
+    public void loadGame(TitanusFabric titanusFabric, Pane root) {
         println("Carregando progresso...");
         try (FileReader reader = new FileReader("saveGames/saveTeste.json")) {
             GameSaveData data = gson.fromJson(reader, GameSaveData.class);

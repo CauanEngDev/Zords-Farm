@@ -197,18 +197,7 @@ public class GameApp extends Application {
         collisionMap[titanusRow + 1][titanusCol + 1] = 9;
     }
 
-    private void stegoSpawn() {
-        StegoZord newStego = new ZordCreate().createStego();
-        ImageView newStegoSprite = newStego.getImageView();
 
-        double stegoSize = newStegoSprite.getBoundsInParent().getHeight();
-        Bounds titanusSize = titanusSprite.getBoundsInParent();
-
-        newStegoSprite.setLayoutX(titanusSprite.getLayoutX() - 70);
-        newStegoSprite.setLayoutY(titanusSprite.getLayoutY() + stegoSize + 40);
-
-        root.getChildren().add(newStegoSprite);
-    }
 
     public static void main(String[] args) {
         launch(args);
