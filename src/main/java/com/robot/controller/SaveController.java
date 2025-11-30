@@ -44,7 +44,7 @@ public class SaveController {
 
             data.titanusData.zordType = titanusFabric.getClass().getSimpleName();
             data.titanusData.level = titanusFabric.getLevel();
-            data.titanusData.numStegos = titanusFabric.numStegos;
+            data.titanusData.numTricera = titanusFabric.numTriceras;
             data.titanusData.x = titanusFabric.getImageView().getLayoutX();
             data.titanusData.y = titanusFabric.getImageView().getLayoutY();
 
@@ -56,7 +56,7 @@ public class SaveController {
         }
     }
 
-    public void loadGame(TitanusFabric titanusFabric, Pane root) {
+    public boolean loadGame(TitanusFabric titanusFabric, Pane root) {
         println("Carregando progresso...");
         try (FileReader reader = new FileReader("saveGames/saveTeste.json")) {
             GameSaveData data = gson.fromJson(reader, GameSaveData.class);
@@ -74,14 +74,17 @@ public class SaveController {
                 }
 
                 titanusFabric.setLevel(data.titanusData.level);
-                titanusFabric.numStegos = data.titanusData.numStegos;
+                titanusFabric.numTriceras = data.titanusData.numTricera;
                 titanusFabric.getImageView().setLayoutX(data.titanusData.x);
                 titanusFabric.getImageView().setLayoutY(data.titanusData.y);
 
                 println("Progresso carregado com sucesso!");
+                return true;
             }
+            return false;
         } catch(Exception e) {
             logger.log(Level.INFO, "Save não encontrado, iniciando novo jogo.");
+            return false;
         }
     }
 }

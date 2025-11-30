@@ -1,10 +1,15 @@
 package com.robot;
 
+import com.google.gson.Gson;
+import com.robot.Database.ZordsData;
+import com.robot.controller.SaveController;
+import com.robot.controller.SelectionManager;
 import com.robot.controller.ZordCreate;
 import com.robot.model.StegoZord;
 
 import static com.robot.Database.ZordsData.*;
 import com.robot.model.TitanusFabric;
+import com.robot.model.TriceraZord;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.BoundingBox;
@@ -19,28 +24,41 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.logging.Logger;
+
+import static com.robot.utils.GameFunction.clearGameWorld;
 import static com.robot.utils.GameFunction.println;
 
 
 public class GameApp extends Application {
     private static final int TILE_GRID = 64;
-    private StegoZord stego;
-    private TitanusFabric titanus;
-    private double targetX = 5 * TILE_GRID;
-    private double targetY = 5 * TILE_GRID;
-    private final double moveSpeed = 4.0;
-
-    private VBox infoBox;
-
     private static final int MAP_ROWS = 12;
     private static final int MAP_COLUMNS = 20;
+    private final double moveSpeed = 4.0;
+    private static final String SAVE_FILE_NAME = "saveTesteRefatoração.json";
 
+    private TriceraZord initialTricera;
+    private TitanusFabric titanusFabric;
+    private Pane root;
+    private VBox infoBox;
     private final int[][] collisionMap = new int[MAP_ROWS][MAP_COLUMNS];
 
-    private Pane root;
+    private final Gson gson = new Gson();
+    private static final Logger LOGGER = Logger.getLogger(GameApp.class.getName());
+    private final ZordCreate zordCreate = new ZordCreate();
+    private final SaveController saveController = new SaveController();
+
     @Override
     public void start(@NotNull Stage stage) {
-        initializeCollisionMap();
+        initialTricera = new TriceraZord();
+        titanusFabric = new TitanusFabric();
+
+        clearGameWorld(this.root);
+        if (!saveController.loadGame(titanusFabric, this.root))
+            GameInitializer.initializeNewGame(initialTricera, titanusFabric, TILE_GRID);
+
+        root.getChildren().addAll(titanusFabric.getImageView(), initialTricera.getImageView());
+
         this.root = new Pane();
         root.setStyle("-fx-background-color: #3d8c40");
         int windowWidth = 1280;
@@ -48,49 +66,22 @@ public class GameApp extends Application {
         Scene scene = new Scene(root,  windowWidth, windowHeight);
 
 
-        titanusSprite.setOnMouseClicked(event -> {
-            event.consume();
-            showTitanusInfo(root, event.getSceneX(), event.getSceneY());
-        });
-
-        root.setOnMouseClicked(event -> {
-            if (infoBox != null) {
-                root.getChildren().remove(infoBox);
-                infoBox = null;
-            }
-            double clickX = event.getX();
-            double clickY = event.getY();
-
-            double newTargetX = clickX - stegoSprite.getBoundsInParent().getWidth() / 2;
-            double newTargetY = clickY - stegoSprite.getBoundsInParent().getHeight() / 2;
-
-            if (isColliding(newTargetX, newTargetY)) {
-                println("Movimento Bloqueado! O Titanus está aí.");
-                return;
-            }
-
-            targetX = newTargetX;
-            targetY = newTargetY;
-
-            println("Novo alvo definido: " + targetX + ", " + targetY);
-            saveGame();
-        });
-
-            stegoSprite.setOnMouseClicked(MouseEvent::consume);
+        SelectionManager selectionManager = new SelectionManager(root, this, initialTricera);
+        selectionManager.setupInputHandlers(triceraZords, titanusFabric);
 
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                double currentX = stegoSprite.getLayoutX();
-                double currentY = stegoSprite.getLayoutY();
+                double currentX = initialTricera.getImageView().getLayoutX();
+                double currentY = initialTricera.getImageView().getLayoutY();
 
                 double deltaX = targetX - currentX;
                 double deltaY = targetY - currentY;
                 double distance = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 
                 if (distance < moveSpeed) {
-                    stegoSprite.setLayoutX(targetX);
-                    stegoSprite.setLayoutY(targetY);
+                    initialTricera.getImageView().setLayoutX(targetX);
+                    initialTricera.getImageView().setLayoutY(targetY);
 
                     stego.showIdleAnimation();
                 } else {
@@ -133,53 +124,6 @@ public class GameApp extends Application {
         }
         return false;
     }
-
-    private void showTitanusInfo(Pane root, double x, double y) {
-        if (infoBox != null) root.getChildren().remove(infoBox);
-
-        infoBox = new VBox(5);
-        infoBox.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 10; -fx-background-radius: 10;");
-
-        Label lblName =  new Label("Nome: " + TitanusFabric.getName());
-        lblName.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-
-        Label lblLevel = new Label("Nível: " + titanus.getLevel());
-        lblLevel.setStyle("-fx-text-fill: yellow;");
-
-        Label lblStegos = new Label("Stegos: " + titanus.numStegos);
-        lblStegos.setStyle("-fx-text-fill: white;");
-
-        Button btnLevelUp = new Button("Upar (+1)");
-        btnLevelUp.setOnAction(event -> {
-            titanus.levelUp();
-            lblLevel.setText("Nível: " + titanus.getLevel());
-            saveGame();
-        });
-
-        Button btnCreateZord = new Button("Criar Zord");
-        btnCreateZord.setOnAction(event -> {
-            if (stegoZords.size() < titanus.numStegos) {
-                titanus.getAnimator().setActionOnFrame(17, ()-> {
-                    stegoSpawn();
-                });
-
-                titanus.getAnimator().setActionOnFinish(() ->{
-                    titanus.showIdleAnimation();
-                });
-
-                titanus.showCreateAnimation();
-            } else println("Número máximo de StegoZords no mapa!");
-        });
-
-        infoBox.getChildren().addAll(lblName, lblLevel, lblStegos, btnLevelUp, btnCreateZord);
-
-        infoBox.setLayoutX(x + 20);
-        infoBox.setLayoutY(y - 50);
-
-        root.getChildren().add(infoBox);
-    }
-
-
 
     private void initializeCollisionMap() {
         for (int i = 0; i < MAP_ROWS; i++) {

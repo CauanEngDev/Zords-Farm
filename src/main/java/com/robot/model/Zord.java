@@ -7,14 +7,20 @@ import static com.robot.enums.AnimationState.*;
 import com.robot.utils.SpriteAnimator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 public abstract class Zord implements IAnimatable, ISelectable {
     protected ImageView zordImageView;
-    protected String name;
+    protected final String name;
     protected ZordFunction function;
     protected int energy;
     protected SpriteAnimator animator;
+
     protected boolean selected = false;
+    protected double targetX;
+    protected double targetY;
+
 
     public Zord(Image zordImageIdle, Image zordImageWalking, Image zordImageWork, String name,  ZordFunction function) {
         this.zordImageView = new ImageView(zordImageIdle);
@@ -71,11 +77,25 @@ public abstract class Zord implements IAnimatable, ISelectable {
     @Override
     public ImageView getImageView() { return zordImageView; }
 
-    public String getName() { return name; }
+    @Override
+    public void showInfoBox(Pane root, double x, double y, VBox oldInfoBox) {
+        if (oldInfoBox != null) root.getChildren().remove(oldInfoBox);
+
+
+    }
 
     public int getEnergy() { return energy; }
 
     public ZordFunction getFunction() { return function; }
 
     public void setEnergy(int energy) { this.energy = energy; }
+
+    public double getTargetX() { return this.targetX; }
+
+    public double getTargetY() { return this.targetY; }
+
+    public void setTarget(double newX, double newY) {
+        this.targetX = newX;
+        this.targetY = newY;
+    }
 }

@@ -28,6 +28,17 @@ public class SelectionManager {
                 double targetX = event.getX();
                 double targetY = event.getY();
 
+                if (selectedEntity instanceof Zord) {
+                    Zord selectedZord = (Zord) selectedEntity;
+
+                    double adjustedX = targetX - selectedZord.getImageView().getBoundsInParent().getWidth() / 2;
+                    double adjustedY = targetY - selectedZord.getImageView().getBoundsInParent().getHeight() / 2;
+
+                    selectedZord.setTarget(adjustedX, adjustedY);
+
+                    selectedZord.showWalkAnimation();
+                } else deselectCurrent();
+
                 if (event.getClickCount() == 2) {
                     deselectCurrent();
                 }

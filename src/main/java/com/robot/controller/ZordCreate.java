@@ -12,13 +12,15 @@ import static com.robot.utils.GameFunction.println;
 
 public class ZordCreate {
     public void createZordByTitanus(Zords type) {
-        if (type == Zords.STEGOZORD) {
-            StegoZord newStego = new StegoZord();
-            stegoZords.add(newStego);
-        } else if (type == Zords.REDMAGICZORD) {
-            RedMagicZord newRedmagic = new RedMagicZord();
-            redMagicZords.add(newRedmagic);
-        } else if (type == Zords.TRICERAZORD) {
+//        if (type == Zords.STEGOZORD) {
+//            StegoZord newStego = new StegoZord();
+//            stegoZords.add(newStego);
+//        }
+//        else if (type == Zords.REDMAGICZORD) {
+//            RedMagicZord newRedmagic = new RedMagicZord();
+//            redMagicZords.add(newRedmagic);
+//        } Implementarei em breve
+        if (type == Zords.TRICERAZORD) {
             TriceraZord newTricera = new TriceraZord();
             triceraZords.add(newTricera);
         }
@@ -29,11 +31,13 @@ public class ZordCreate {
             StegoZord newStego = new StegoZord();
             stegoZords.add(newStego);
             return newStego;
-        } else if (function == ZordFunction.FIGHTER) {
-            RedMagicZord newRedmagic = new RedMagicZord();
-            redMagicZords.add(newRedmagic);
-            return newRedmagic;
-        } else if (function == ZordFunction.MINER) {
+        }
+//        else if (function == ZordFunction.FIGHTER) {
+//            RedMagicZord newRedmagic = new RedMagicZord();
+//            redMagicZords.add(newRedmagic);
+//            return newRedmagic;
+//        }
+        else if (function == ZordFunction.MINER) {
             TriceraZord newTricera = new TriceraZord();
             triceraZords.add(newTricera);
             return newTricera;

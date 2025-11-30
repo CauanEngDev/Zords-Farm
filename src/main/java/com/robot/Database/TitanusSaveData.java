@@ -5,7 +5,7 @@ public class TitanusSaveData {
     public double x;
     public double y;
     public int level;
-    public int numStegos;
+    public int numTricera;
 
     public TitanusSaveData() {}
 }
