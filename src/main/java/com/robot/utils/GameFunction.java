@@ -1,5 +1,7 @@
 package com.robot.utils;
 
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -18,4 +20,8 @@ public class GameFunction {
         redMagicZords.clear();
         triceraZords.clear();
     }
+
+//    public static boolean isColliding(double futureX, double futureY) {
+//
+//    }
 }

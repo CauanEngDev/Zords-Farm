@@ -27,17 +27,17 @@ public class ZordCreate {
     }
 
     public Zord createZordByLoad(ZordFunction function) {
-        if (function == ZordFunction.BUILDER) {
-            StegoZord newStego = new StegoZord();
-            stegoZords.add(newStego);
-            return newStego;
-        }
+//        if (function == ZordFunction.BUILDER) {
+//            StegoZord newStego = new StegoZord();
+//            stegoZords.add(newStego);
+//            return newStego;
+//        }
 //        else if (function == ZordFunction.FIGHTER) {
 //            RedMagicZord newRedmagic = new RedMagicZord();
 //            redMagicZords.add(newRedmagic);
 //            return newRedmagic;
 //        }
-        else if (function == ZordFunction.MINER) {
+        if (function == ZordFunction.MINER) {
             TriceraZord newTricera = new TriceraZord();
             triceraZords.add(newTricera);
             return newTricera;

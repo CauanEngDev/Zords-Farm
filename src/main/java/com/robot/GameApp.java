@@ -2,6 +2,7 @@ package com.robot;
 
 import com.google.gson.Gson;
 import com.robot.Database.ZordsData;
+import com.robot.controller.GameInitializer;
 import com.robot.controller.SaveController;
 import com.robot.controller.SelectionManager;
 import com.robot.controller.ZordCreate;
@@ -10,6 +11,7 @@ import com.robot.model.StegoZord;
 import static com.robot.Database.ZordsData.*;
 import com.robot.model.TitanusFabric;
 import com.robot.model.TriceraZord;
+import com.robot.model.Zord;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.BoundingBox;
@@ -24,6 +26,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.robot.utils.GameFunction.clearGameWorld;
@@ -32,8 +36,6 @@ import static com.robot.utils.GameFunction.println;
 
 public class GameApp extends Application {
     private static final int TILE_GRID = 64;
-    private static final int MAP_ROWS = 12;
-    private static final int MAP_COLUMNS = 20;
     private final double moveSpeed = 4.0;
     private static final String SAVE_FILE_NAME = "saveTesteRefatoração.json";
 
@@ -41,7 +43,7 @@ public class GameApp extends Application {
     private TitanusFabric titanusFabric;
     private Pane root;
     private VBox infoBox;
-    private final int[][] collisionMap = new int[MAP_ROWS][MAP_COLUMNS];
+
 
     private final Gson gson = new Gson();
     private static final Logger LOGGER = Logger.getLogger(GameApp.class.getName());
@@ -50,95 +52,68 @@ public class GameApp extends Application {
 
     @Override
     public void start(@NotNull Stage stage) {
+        root = new Pane();
         initialTricera = new TriceraZord();
         titanusFabric = new TitanusFabric();
 
         clearGameWorld(this.root);
-        if (!saveController.loadGame(titanusFabric, this.root))
+        if (!saveController.loadGame(titanusFabric, root))
             GameInitializer.initializeNewGame(initialTricera, titanusFabric, TILE_GRID);
 
         root.getChildren().addAll(titanusFabric.getImageView(), initialTricera.getImageView());
 
-        this.root = new Pane();
         root.setStyle("-fx-background-color: #3d8c40");
         int windowWidth = 1280;
         int windowHeight = 768;
         Scene scene = new Scene(root,  windowWidth, windowHeight);
 
-
-        SelectionManager selectionManager = new SelectionManager(root, this, initialTricera);
+        SelectionManager selectionManager = new SelectionManager(root, this);
         selectionManager.setupInputHandlers(triceraZords, titanusFabric);
 
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                double currentX = initialTricera.getImageView().getLayoutX();
-                double currentY = initialTricera.getImageView().getLayoutY();
+                Set<Zord> allZords = new HashSet<>();
+                allZords.addAll(stegoZords);
+                allZords.addAll(triceraZords);
 
-                double deltaX = targetX - currentX;
-                double deltaY = targetY - currentY;
-                double distance = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+                for (Zord zord : allZords) {
+                    double currentX = zord.getImageView().getLayoutX();
+                    double currentY = zord.getImageView().getLayoutY();
 
-                if (distance < moveSpeed) {
-                    initialTricera.getImageView().setLayoutX(targetX);
-                    initialTricera.getImageView().setLayoutY(targetY);
+                    double targetX = zord.getTargetX();
+                    double targetY = zord.getTargetY();
 
-                    stego.showIdleAnimation();
-                } else {
-                    if (targetX < currentX) stegoSprite.setScaleX(-1.0);
-                    else if (targetX > currentX) stegoSprite.setScaleX(1.0);
-                    double stepX = (deltaX / distance) * moveSpeed;
-                    double stepY = (deltaY / distance) * moveSpeed;
+                    if (targetX != currentX || targetY != currentY) {
+                        double deltax  = targetX - currentX;
+                        double deltay = targetY - currentY;
+                        double distance = Math.sqrt(Math.pow(deltax, 2) + Math.pow(deltay, 2));
 
-                    stegoSprite.setLayoutX(currentX + stepX);
-                    stegoSprite.setLayoutY(currentY + stepY);
+                        if (distance < moveSpeed) {
+                            zord.getImageView().setLayoutX(targetX);
+                            zord.getImageView().setLayoutY(targetY);
+                            zord.showIdleAnimation();
+                        } else {
+                            if (targetX < currentX) zord.getImageView().setScaleX(-1.0);
+                            else if (targetX > currentX) zord.getImageView().setScaleX(1.0);
 
-                    stego.showWalkAnimation();
+                            double stepX = (deltax/distance) * moveSpeed;
+                            double stepY = (deltay/distance) * moveSpeed;
+
+                            zord.getImageView().setLayoutX(currentX + stepX);
+                            zord.getImageView().setLayoutY(currentY + stepY);
+                            zord.showWalkAnimation();
+                        }
+                    }
                 }
             }
         };
 
         gameLoop.start();
 
-        stage.setTitle("Meu teste de animação");
+        stage.setTitle("Meu teste de refatoração");
         stage.setScene(scene);
         stage.show();
-    }
-
-    private boolean isColliding(double futureX, double futureY) {
-        Bounds titanusBounds = titanusSprite.getBoundsInParent();
-        Bounds stegoFutureBounds = new BoundingBox(
-                futureX,
-                futureY,
-                stegoSprite.getBoundsInParent().getWidth(),
-                stegoSprite.getBoundsInParent().getHeight()
-        );
-
-        double shirk = 20.0;
-
-        if (stegoFutureBounds.intersects(titanusBounds.getMinX() + shirk,
-                                        titanusBounds.getMinY() + shirk,
-                                        titanusBounds.getWidth() - (2 * shirk),
-                                        titanusBounds.getHeight() - (2 * shirk))) {
-            return true;
-        }
-        return false;
-    }
-
-    private void initializeCollisionMap() {
-        for (int i = 0; i < MAP_ROWS; i++) {
-            for (int j = 0; j < MAP_COLUMNS; j++) {
-                collisionMap[i][j] = 0;
-            }
-        }
-
-        int titanusCol = 5;
-        int titanusRow = 1;
-
-        collisionMap[titanusRow][titanusCol] = 9;
-        collisionMap[titanusRow][titanusCol + 1] = 9;
-        collisionMap[titanusRow + 1][titanusCol] = 9;
-        collisionMap[titanusRow + 1][titanusCol + 1] = 9;
     }
 
 

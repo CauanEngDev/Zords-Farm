@@ -17,7 +17,7 @@ public class SelectionManager {
         this.root = root;
     }
 
-    public void setupInputHandlers(Set<Zord> allZords, TitanusFabric titanusFabric) {
+    public void setupInputHandlers(Set<? extends Zord> allZords, TitanusFabric titanusFabric) {
         for (Zord zord : allZords)
             registerUnitClick(zord);
 
