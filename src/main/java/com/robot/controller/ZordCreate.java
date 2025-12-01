@@ -11,19 +11,34 @@ import static com.robot.Database.ZordsData.*;
 import static com.robot.utils.GameFunction.println;
 
 public class ZordCreate {
-    public void createZordByTitanus(Zords type) {
-//        if (type == Zords.STEGOZORD) {
-//            StegoZord newStego = new StegoZord();
-//            stegoZords.add(newStego);
-//        }
-//        else if (type == Zords.REDMAGICZORD) {
-//            RedMagicZord newRedmagic = new RedMagicZord();
-//            redMagicZords.add(newRedmagic);
-//        } Implementarei em breve
-        if (type == Zords.TRICERAZORD) {
-            TriceraZord newTricera = new TriceraZord();
-            triceraZords.add(newTricera);
+    @SuppressWarnings("unchecked")
+    public <T extends Zord> T createZordByTitanus(Zords type) {
+        Zord newZord;
+
+        switch (type) {
+//            case STEGOZORD:
+//                StegoZord newStego = new StegoZord();
+//                // Adiciona ao Set
+//                stegoZords.add(newStego);
+//                newZord = newStego;
+//                break;
+//
+//            case REDMAGICZORD:
+//                RedMagicZord newRedmagic = new RedMagicZord();
+//                // Adiciona ao Set
+//                redMagicZords.add(newRedmagic);
+//                newZord = newRedmagic;
+//                break;
+
+            case TRICERAZORD:
+                newZord = new TriceraZord();
+                break;
+
+            default:
+                println("Tipo de Zord não reconhecido: " + type);
+                return null;
         }
+        return (T) newZord;
     }
 
     public Zord createZordByLoad(ZordFunction function) {

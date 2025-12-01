@@ -44,7 +44,6 @@ public class GameApp extends Application {
     private Pane root;
     private VBox infoBox;
 
-
     private final Gson gson = new Gson();
     private static final Logger LOGGER = Logger.getLogger(GameApp.class.getName());
     private final ZordCreate zordCreate = new ZordCreate();
@@ -68,7 +67,6 @@ public class GameApp extends Application {
         Scene scene = new Scene(root,  windowWidth, windowHeight);
 
         SelectionManager selectionManager = new SelectionManager(root, this);
-        selectionManager.setupInputHandlers(triceraZords, titanusFabric);
 
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
@@ -76,6 +74,7 @@ public class GameApp extends Application {
                 Set<Zord> allZords = new HashSet<>();
                 allZords.addAll(stegoZords);
                 allZords.addAll(triceraZords);
+                selectionManager.setupInputHandlers(allZords, titanusFabric);
 
                 for (Zord zord : allZords) {
                     double currentX = zord.getImageView().getLayoutX();
@@ -116,7 +115,12 @@ public class GameApp extends Application {
         stage.show();
     }
 
-
+    public void hideInfoBox() {
+        if (this.infoBox != null && this.root != null) {
+            this.root.getChildren().remove(this.infoBox);
+            this.infoBox = null;
+        }
+    }
 
     public static void main(String[] args) {
         launch(args);

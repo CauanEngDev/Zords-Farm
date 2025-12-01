@@ -5,8 +5,10 @@ import static com.robot.utils.FileFuction.*;
 import com.robot.Interfaces.IAnimatable;
 import com.robot.Interfaces.ISelectable;
 import com.robot.controller.ZordCreate;
+import com.robot.enums.ZordFunction;
 import com.robot.enums.Zords;
 import com.robot.utils.SpriteAnimator;
+import javafx.geometry.Bounds;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -137,8 +139,8 @@ public class TitanusFabric implements IAnimatable, ISelectable {
             }
         });
 
-        Button btnCreateZord = new Button("Criar Zord");
-        btnCreateZord.setOnMouseEntered(event -> {
+        Button btnCreateZord = new Button("Criar Zord  >");
+        btnCreateZord.setOnAction(event -> {
             createMenu.show(btnCreateZord, Side.BOTTOM, 0, 0);
         });
 
@@ -148,11 +150,15 @@ public class TitanusFabric implements IAnimatable, ISelectable {
 //        });
 
         triceraItem.setOnAction(event -> {
-                createController.createZordByTitanus(Zords.TRICERAZORD);
-                createMenu.hide();
-        });
+            getAnimator().setActionOnFrame(17, () -> {
+                zordSpawn(Zords.TRICERAZORD, root);
+            });
 
-        btnCreateZord.setOnMouseExited(event -> {
+            getAnimator().setActionOnFinish(() -> {
+                showIdleAnimation();
+            });
+
+            showCreateAnimation();
             createMenu.hide();
         });
 
@@ -160,18 +166,16 @@ public class TitanusFabric implements IAnimatable, ISelectable {
         root.getChildren().add(newInfoBox);
     }
 
-//    private void stegoSpawn() {
-//        StegoZord newStego = new ZordCreate().createZordByTitanus();
-//        ImageView newStegoSprite = newStego.getImageView();
-//
-//        double stegoSize = newStegoSprite.getBoundsInParent().getHeight();
-//        Bounds titanusSize = titanusSprite.getBoundsInParent();
-//
-//        newStegoSprite.setLayoutX(titanusSprite.getLayoutX() - 70);
-//        newStegoSprite.setLayoutY(titanusSprite.getLayoutY() + stegoSize + 40);
-//
-//        root.getChildren().add(newStegoSprite);
-//    }
+    private void zordSpawn(Zords type, Pane root) {
+        Zord newZord = new ZordCreate().createZordByTitanus(type);
+
+        double zordSize = newZord.getImageView().getBoundsInParent().getHeight();
+
+        newZord.getImageView().setLayoutX(getImageView().getLayoutX() - 70);
+        newZord.getImageView().setLayoutY(getImageView().getLayoutY() + zordSize + 40);
+
+        root.getChildren().add(newZord.getImageView());
+    }
 
     public int getLevel() {
         return titanusLevel;

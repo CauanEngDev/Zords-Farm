@@ -6,18 +6,22 @@ import com.robot.model.TitanusFabric;
 import com.robot.model.Zord;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 import java.util.Set;
 
 public class SelectionManager {
     private ISelectable selectedEntity = null;
     private final Pane root;
+    private final GameApp app;
+    private VBox infoBox;
 
     public SelectionManager(Pane root, GameApp app) {
         this.root = root;
+        this.app = app;
     }
 
-    public void setupInputHandlers(Set<? extends Zord> allZords, TitanusFabric titanusFabric) {
+    public void setupInputHandlers(Set<Zord> allZords, TitanusFabric titanusFabric) {
         for (Zord zord : allZords)
             registerUnitClick(zord);
 
@@ -47,7 +51,10 @@ public class SelectionManager {
     }
 
     public void deselectCurrent() {
+        if (selectedEntity == null) return;
+
         selectedEntity.deselect();
+        this.app.hideInfoBox();
         selectedEntity = null;
     }
 
@@ -57,15 +64,21 @@ public class SelectionManager {
         view.setOnMouseClicked(event -> {
             event.consume();
 
-            if (selectedEntity == entity)
+            if (selectedEntity == entity) {
                 deselectCurrent();
-            else {
-                if (selectedEntity != null)
+            } else {
+                if (selectedEntity != null) {
                     deselectCurrent();
+                } else {
+                    this.app.hideInfoBox();
+                }
 
                 entity.select();
                 selectedEntity = entity;
             }
+
+            if (selectedEntity != null)
+                selectedEntity.showInfoBox(root, event.getSceneX(), event.getSceneY(), infoBox);
         });
     }
 }

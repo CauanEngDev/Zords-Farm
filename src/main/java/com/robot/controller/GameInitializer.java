@@ -3,6 +3,8 @@ package com.robot.controller;
 import com.robot.model.TitanusFabric;
 import com.robot.model.TriceraZord;
 
+import static com.robot.Database.ZordsData.triceraZords;
+
 public class GameInitializer {
     private static final int MAP_ROWS = 35;
     private static final int MAP_COLUMNS = 40;
@@ -10,6 +12,7 @@ public class GameInitializer {
 
 
     public static void initializeNewGame(TriceraZord triceraZord, TitanusFabric titanus, int tileGrid) {
+        triceraZords.add(triceraZord);
         int zordCol = 5;
         int zordRow = 5;
         int titaCol = 5;

@@ -5,6 +5,8 @@ import com.robot.Interfaces.ISelectable;
 import com.robot.enums.ZordFunction;
 import static com.robot.enums.AnimationState.*;
 import com.robot.utils.SpriteAnimator;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -78,11 +80,7 @@ public abstract class Zord implements IAnimatable, ISelectable {
     public ImageView getImageView() { return zordImageView; }
 
     @Override
-    public void showInfoBox(Pane root, double x, double y, VBox oldInfoBox) {
-        if (oldInfoBox != null) root.getChildren().remove(oldInfoBox);
-
-
-    }
+    public abstract void showInfoBox(Pane root, double x, double y, VBox oldInfoBox);
 
     public int getEnergy() { return energy; }
 
