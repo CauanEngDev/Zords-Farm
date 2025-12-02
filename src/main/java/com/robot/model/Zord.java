@@ -12,31 +12,40 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
+/**
+ * Classe Abstrata base para todos os Zords.
+ * Implementa a lógica de animação (Composição) e o contrato de Seleção.
+ */
 public abstract class Zord implements IAnimatable, ISelectable {
     protected ImageView zordImageView;
     protected final String name;
     protected ZordFunction function;
     protected int energy;
     protected SpriteAnimator animator;
-
     protected boolean selected = false;
     protected double targetX;
     protected double targetY;
 
 
+    /**
+     * Construtor para inicializar o Zord com seus assets e função.
+     */
     public Zord(Image zordImageIdle, Image zordImageWalking, Image zordImageWork, String name,  ZordFunction function) {
         this.zordImageView = new ImageView(zordImageIdle);
         this.name = name;
         this.function = function;
         this.energy = 100;
 
+        // Configuração visual básica (1x escala)
         this.zordImageView.setScaleX(1);
         this.zordImageView.setScaleY(1);
         this.zordImageView.setPreserveRatio(true);
         this.zordImageView.setPickOnBounds(false);
 
+        // Inicialização do motor de animação (Composição)
         this.animator = new SpriteAnimator(this.zordImageView);
 
+        // Adiciona e inicia as animações
         this.animator.addAnimation(IDLE, zordImageIdle);
         this.animator.addAnimation(WALKING, zordImageWalking);
         this.animator.addAnimation(WORKING, zordImageWork);
@@ -44,6 +53,7 @@ public abstract class Zord implements IAnimatable, ISelectable {
         this.animator.play(IDLE);
     }
 
+    // --- MÉTODOS IANIMATABLE ---
     @Override
     public SpriteAnimator getAnimator() {
         return this.animator;
@@ -57,6 +67,7 @@ public abstract class Zord implements IAnimatable, ISelectable {
         this.animator.play(IDLE);
     }
 
+    // --- MÉTODOS ISELECTABLE ---
     @Override
     public void select() {
         if (selected) return;
@@ -80,16 +91,13 @@ public abstract class Zord implements IAnimatable, ISelectable {
     public ImageView getImageView() { return zordImageView; }
 
     @Override
-    public abstract VBox showInfoBox(Pane root, double x, double y);
+    public abstract VBox showInfoBox(Pane root, double x, double y); // Contrato que as filhas devem implementar
 
+    // --- GETTERS E SETTERS DE ESTADO ---
     public int getEnergy() { return energy; }
-
     public ZordFunction getFunction() { return function; }
-
     public void setEnergy(int energy) { this.energy = energy; }
-
     public double getTargetX() { return this.targetX; }
-
     public double getTargetY() { return this.targetY; }
 
     public void setTarget(double newX, double newY) {

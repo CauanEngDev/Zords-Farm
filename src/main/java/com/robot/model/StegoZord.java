@@ -11,17 +11,23 @@ import static com.robot.enums.ZordFunction.*;
 import static com.robot.utils.FileFuction.*;
 
 public class StegoZord extends Zord {
+    // Carregamento de Assets
     private static final Image STEGO_IMAGE_IDLE = loadingImageSprite("/StegoZord/StegoIdle.png");
-    private static final Image STEGO_IMAGE_WALKING = loadingImageSprite("/StegoZord/StegoWalking.png/");
-    private static final Image STEGO_IMAGE_WORKING = loadingImageSprite("/StegoZord/StegoBuilding.png/");
+    private static final Image STEGO_IMAGE_WALKING = loadingImageSprite("/StegoZord/StegoWalking.png");
+    private static final Image STEGO_IMAGE_WORKING = loadingImageSprite("/StegoZord/StegoBuilding.png"); // <-- Corrigida a barra final
 
     public StegoZord() {
         super(STEGO_IMAGE_IDLE, STEGO_IMAGE_WALKING, STEGO_IMAGE_WORKING, "Stego Zord", BUILDER);
     }
 
+    /**
+     * Cria e exibe a caixa de informações específica para o StegoZord (Construtor).
+     */
     @Override
     public VBox showInfoBox(Pane root, double x, double y) {
         VBox newInfoBox = new VBox(5);
+        newInfoBox.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 10; -fx-background-radius: 10;");
+
         Label lblName = new Label(this.name);
         lblName.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
@@ -30,10 +36,14 @@ public class StegoZord extends Zord {
 
         Button builderButton = new Button("Construir (Em manutenção)");
         builderButton.setDisable(true);
-        Tooltip minerTT = new Tooltip("Lógica de construção não implementada!");
-        Tooltip.install(builderButton, minerTT);
+        Tooltip builderTT = new Tooltip("Lógica de construção não implementada!");
+        Tooltip.install(builderButton, builderTT);
 
         newInfoBox.getChildren().addAll(lblName, lblFunction, builderButton);
+        // Posicionamento
+        newInfoBox.setLayoutX(this.getImageView().getLayoutX() + 20);
+        newInfoBox.setLayoutY(this.getImageView().getLayoutY() - 40);
+        // O "Porquê": Adicionamos o novo infoBox ao root e o retornamos para o SelectionManager
         root.getChildren().add(newInfoBox);
         return newInfoBox;
     }
