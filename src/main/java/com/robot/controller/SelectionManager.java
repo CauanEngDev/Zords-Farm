@@ -21,22 +21,24 @@ public class SelectionManager {
         this.app = app;
     }
 
-    public void setupInputHandlers(Set<Zord> allZords, TitanusFabric titanusFabric) {
-        for (Zord zord : allZords)
-            registerUnitClick(zord);
+    public void setupInputHandlers(Set<? extends Zord> allZords, TitanusFabric titanusFabric) {
+        if (allZords != null && !allZords.isEmpty()) {
+            for (Zord zord : allZords)
+                registerUnitClick(zord);
+        }
 
         registerUnitClick(titanusFabric);
 
         root.setOnMouseClicked(event -> {
             if (selectedEntity != null) {
-                double targetX = event.getX();
-                double targetY = event.getY();
+                double worldTargetX = event.getX() - app.getWorld().getTranslateX();
+                double worldTargetY = event.getY() -  app.getWorld().getTranslateY();
 
                 if (selectedEntity instanceof Zord) {
                     Zord selectedZord = (Zord) selectedEntity;
 
-                    double adjustedX = targetX - selectedZord.getImageView().getBoundsInParent().getWidth() / 2;
-                    double adjustedY = targetY - selectedZord.getImageView().getBoundsInParent().getHeight() / 2;
+                    double adjustedX = worldTargetX - selectedZord.getImageView().getBoundsInParent().getWidth() / 2;
+                    double adjustedY = worldTargetY - selectedZord.getImageView().getBoundsInParent().getHeight() / 2;
 
                     selectedZord.setTarget(adjustedX, adjustedY);
 
@@ -54,7 +56,11 @@ public class SelectionManager {
         if (selectedEntity == null) return;
 
         selectedEntity.deselect();
+
+        if (this.infoBox != null)
+            root.getChildren().remove(this.infoBox);
         this.app.hideInfoBox();
+        this.infoBox = null;
         selectedEntity = null;
     }
 
@@ -77,8 +83,11 @@ public class SelectionManager {
                 selectedEntity = entity;
             }
 
-            if (selectedEntity != null)
-                selectedEntity.showInfoBox(root, event.getSceneX(), event.getSceneY(), infoBox);
+            if (selectedEntity != null) {
+                if (this.infoBox != null) root.getChildren().remove(this.infoBox);
+                VBox newVBox = selectedEntity.showInfoBox(root, event.getSceneX(), event.getSceneY());
+                this.infoBox = newVBox;
+            }
         });
     }
 }

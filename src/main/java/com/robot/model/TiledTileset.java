@@ -1,5 +1,5 @@
 // model/TiledTileset.java
-package model;
+package com.robot.model;
 
 public class TiledTileset {
     public int firstgid;

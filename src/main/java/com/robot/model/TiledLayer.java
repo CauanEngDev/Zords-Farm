@@ -1,4 +1,4 @@
-package model;
+package com.robot.model;
 
 
 public class TiledLayer {

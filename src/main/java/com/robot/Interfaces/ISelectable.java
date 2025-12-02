@@ -9,5 +9,5 @@ public interface ISelectable {
     void select();
     void deselect();
     boolean isSelected();
-    void showInfoBox(Pane root, double x, double y, VBox oldInfoBox);
+    VBox showInfoBox(Pane root, double x, double y);
 }

@@ -20,9 +20,7 @@ public class StegoZord extends Zord {
     }
 
     @Override
-    public void showInfoBox(Pane root, double x, double y, VBox oldInfoBox) {
-        if (oldInfoBox != null) root.getChildren().remove(oldInfoBox);
-
+    public VBox showInfoBox(Pane root, double x, double y) {
         VBox newInfoBox = new VBox(5);
         Label lblName = new Label(this.name);
         lblName.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
@@ -37,5 +35,6 @@ public class StegoZord extends Zord {
 
         newInfoBox.getChildren().addAll(lblName, lblFunction, builderButton);
         root.getChildren().add(newInfoBox);
+        return newInfoBox;
     }
 }

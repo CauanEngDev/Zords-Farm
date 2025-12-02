@@ -1,5 +1,5 @@
 // model/TiledMap.java
-package model;
+package com.robot.model;
 
 import java.util.List;
 

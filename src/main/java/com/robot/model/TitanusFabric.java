@@ -4,12 +4,14 @@ import static com.robot.Database.ZordsData.*;
 import static com.robot.utils.FileFuction.*;
 import com.robot.Interfaces.IAnimatable;
 import com.robot.Interfaces.ISelectable;
+import com.robot.controller.SelectionManager;
 import com.robot.controller.ZordCreate;
 import com.robot.enums.ZordFunction;
 import com.robot.enums.Zords;
 import com.robot.utils.SpriteAnimator;
 import javafx.geometry.Bounds;
 import javafx.geometry.Side;
+import javafx.scene.Group;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,13 +26,19 @@ public class TitanusFabric implements IAnimatable, ISelectable {
 //    public int numStegos = 3;
     public int numTriceras = 3;
     private boolean selected;
+    private final Group world;
+    private final SelectionManager selectionManager;
+    private final int[][] collisionMap;
+    private final int tileGrid;
 
     private final ImageView titanusImageView;
     private final SpriteAnimator animator;
 
-    private final ZordCreate createController = new ZordCreate();
-
-    public TitanusFabric() {
+    public TitanusFabric(Group world, SelectionManager selectionManager, int[][] collisionMap, int tileGrid) {
+        this.world = world;
+        this.selectionManager = selectionManager;
+        this.collisionMap = collisionMap;
+        this.tileGrid = tileGrid;
         Image titanusIdle = loadingImageSprite("/TitanusFabric/TitanusIdle.png");
         this.titanusImageView = new ImageView(titanusIdle);
         Image titanusCreate = loadingImageSprite("/TitanusFabric/TitanusCreate.png");
@@ -86,9 +94,7 @@ public class TitanusFabric implements IAnimatable, ISelectable {
     }
 
     @Override
-    public void showInfoBox(Pane root, double x, double y, VBox oldInfoBox) {
-        if (oldInfoBox != null) root.getChildren().remove(oldInfoBox);
-
+    public VBox showInfoBox(Pane root, double x, double y) {
         MenuItem stegoItem = new MenuItem("Construtor (Coming Soon)");
         stegoItem.setDisable(true);
         MenuItem redMagicItem = new MenuItem("Combatente (Coming Soon)");
@@ -132,7 +138,7 @@ public class TitanusFabric implements IAnimatable, ISelectable {
                 lblLevel.setText("Nível: " + titanusLevel);
 //                numStegos += 1;
                 numTriceras += 1;
-                showInfoBox(root, x, y, newInfoBox);
+                showInfoBox(root, x, y);
             } else {
                 btnLevelUp.setDisable(true);
                 btnLevelUp.setText("MAX LEVEL");
@@ -164,6 +170,7 @@ public class TitanusFabric implements IAnimatable, ISelectable {
 
         newInfoBox.getChildren().addAll(lblName,lblLevel, lblTricera, btnCreateZord, btnLevelUp);
         root.getChildren().add(newInfoBox);
+        return newInfoBox;
     }
 
     private void zordSpawn(Zords type, Pane root) {
@@ -171,9 +178,18 @@ public class TitanusFabric implements IAnimatable, ISelectable {
 
         double zordSize = newZord.getImageView().getBoundsInParent().getHeight();
 
-        newZord.getImageView().setLayoutX(getImageView().getLayoutX() - 70);
-        newZord.getImageView().setLayoutY(getImageView().getLayoutY() + zordSize + 40);
+        double spawnX = getImageView().getLayoutX() - 60;
+        double spawnY = getImageView().getLayoutY() + zordSize + 40;
+        newZord.getImageView().setLayoutX(spawnX);
+        newZord.getImageView().setLayoutY(spawnY);
+//
+//        int tileX = (int) (spawnX / tileGrid);
+//        int tileY = (int) (spawnY / tileGrid);
+//
+//        if (tileY >= 0 && tileY < this.collisionMap.length && tileX >= 0 && tileX < this.collisionMap[0].length)
+//            this.collisionMap[tileY][tileX] = 2;
 
+        this.selectionManager.setupInputHandlers(triceraZords, null);
         root.getChildren().add(newZord.getImageView());
     }
 

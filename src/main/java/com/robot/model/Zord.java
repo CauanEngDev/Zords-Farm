@@ -80,7 +80,7 @@ public abstract class Zord implements IAnimatable, ISelectable {
     public ImageView getImageView() { return zordImageView; }
 
     @Override
-    public abstract void showInfoBox(Pane root, double x, double y, VBox oldInfoBox);
+    public abstract VBox showInfoBox(Pane root, double x, double y);
 
     public int getEnergy() { return energy; }
 
