@@ -5,7 +5,6 @@ import com.robot.Database.GameSaveData;
 import com.robot.Database.ZordsInfoData;
 import com.robot.model.*;
 import javafx.scene.Group;
-import javafx.scene.layout.Pane;
 
 import java.io.File;
 import java.io.FileReader;
@@ -17,7 +16,6 @@ import java.util.logging.Logger;
 
 
 import static com.robot.Database.ZordsData.*;
-import static com.robot.utils.GameFunction.clearGameWorld;
 import static com.robot.utils.GameFunction.println;
 
 /**
@@ -43,10 +41,10 @@ public class SaveController {
     public void saveGame(TitanusFabric titanusFabric) {
         println("Salvando progresso...");
         // 1. Consolida todos os Zords ativos em um único Set.
-        Set<Zord> zords = new HashSet<>();
-        zords.addAll(stegoZords);
-        zords.addAll(redMagicZords);
-        zords.addAll(triceraZords);
+        Set<WorkZord> workZords = new HashSet<>();
+        workZords.addAll(stegoZords);
+        workZords.addAll(redMagicZords);
+        workZords.addAll(triceraZords);
 
         try {
             File directory = new File(SAVE_DIR);
@@ -56,12 +54,12 @@ public class SaveController {
                 GameSaveData data = new GameSaveData(); // Contêiner raiz para o save
 
                 // 2. Itera sobre a coleção e converte Zord vivo para objeto de dados (DTO).
-                for (Zord zord : zords) {
+                for (WorkZord workZord : workZords) {
                     ZordsInfoData zsd = new ZordsInfoData();
-                    zsd.zordFunction = zord.getFunction();
-                    zsd.energy = zord.getEnergy();
-                    zsd.x = zord.getImageView().getLayoutX(); // Salva a posição visual
-                    zsd.y = zord.getImageView().getLayoutY();
+                    zsd.zordFunction = workZord.getFunction();
+                    zsd.energy = workZord.getEnergy();
+                    zsd.x = workZord.getImageView().getLayoutX(); // Salva a posição visual
+                    zsd.y = workZord.getImageView().getLayoutY();
 
                     data.allZords.add(zsd);
                 }
@@ -70,6 +68,7 @@ public class SaveController {
                 data.titanusData.zordType = titanusFabric.getClass().getSimpleName();
                 data.titanusData.level = titanusFabric.getLevel();
                 data.titanusData.numTricera = titanusFabric.numTriceras;
+                data.titanusData.numStego = titanusFabric.numStegos;
                 data.titanusData.x = titanusFabric.getImageView().getLayoutX();
                 data.titanusData.y = titanusFabric.getImageView().getLayoutY();
 
@@ -103,22 +102,23 @@ public class SaveController {
                 // 1. Carrega os Zords
                 for (ZordsInfoData zsd : data.allZords) {
                     // Recria a instância do Zord usando a Factory (ZordCreate)
-                    Zord newZord = createControl.createZordByLoad(zsd.zordFunction);
+                    WorkZord newWorkZord = createControl.createZordByLoad(zsd.zordFunction);
 
                     // Aplica os dados carregados
-                    newZord.setEnergy(zsd.energy);
-                    newZord.getImageView().setLayoutX(zsd.x);
-                    newZord.getImageView().setLayoutY(zsd.y);
+                    newWorkZord.setEnergy(zsd.energy);
+                    newWorkZord.getImageView().setLayoutX(zsd.x);
+                    newWorkZord.getImageView().setLayoutY(zsd.y);
 
-                    newZord.setTarget(zsd.x,  zsd.y);
+                    newWorkZord.setTarget(zsd.x,  zsd.y);
 
                     // Adiciona a View do Zord recém-criado à cena
-                    world.getChildren().add(newZord.getImageView());
+                    world.getChildren().add(newWorkZord.getImageView());
                 }
 
                 // 2. Carrega o Titanus
                 titanusFabric.setLevel(data.titanusData.level);
                 titanusFabric.numTriceras = data.titanusData.numTricera;
+                titanusFabric.numStegos = data.titanusData.numStego;
                 titanusFabric.getImageView().setLayoutX(data.titanusData.x); // Aplica a posição salva
                 titanusFabric.getImageView().setLayoutY(data.titanusData.y);
 

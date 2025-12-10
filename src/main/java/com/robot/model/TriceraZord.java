@@ -11,7 +11,7 @@ import static com.robot.enums.ZordFunction.*;
 import static com.robot.utils.FileFuction.loadingImageSprite;
 
 
-public class TriceraZord extends Zord {
+public class TriceraZord extends WorkZord {
     private static final Image TRICERA_IMAGE_IDLE = loadingImageSprite("/TriceraZord (Dino Charge)/TriceraIdle.png");
     private static final Image TRICERA_IMAGE_WALKING = loadingImageSprite("/TriceraZord (Dino Charge)/TriceraWalking.png");
     private static final Image TRICERA_IMAGE_MINING = loadingImageSprite("/TriceraZord (Dino Charge)/TriceraMining.png");

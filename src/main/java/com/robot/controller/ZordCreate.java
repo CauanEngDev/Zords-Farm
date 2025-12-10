@@ -5,7 +5,7 @@ import com.robot.enums.Zords;
 import com.robot.model.RedMagicZord;
 import com.robot.model.StegoZord;
 import com.robot.model.TriceraZord;
-import com.robot.model.Zord;
+import com.robot.model.WorkZord;
 
 import static com.robot.Database.ZordsData.*; // Acessa os Sets estáticos
 import static com.robot.utils.GameFunction.println;
@@ -25,33 +25,33 @@ public class ZordCreate {
      * @return A nova instância do Zord.
      */
     @SuppressWarnings("unchecked")
-    public <T extends Zord> T createZordByTitanus(Zords type) {
-        Zord newZord = null; // Inicializa a variável para garantir que todos os caminhos tenham um retorno
+    public <T extends WorkZord> T createZordByTitanus(Zords type) {
+        WorkZord newWorkZord = null; // Inicializa a variável para garantir que todos os caminhos tenham um retorno
 
         switch (type) {
             case STEGOZORD:
                 StegoZord newStego = new StegoZord();
                 stegoZords.add(newStego); // CRITICAL: Adiciona ao Set estático
-                newZord = newStego;
+                newWorkZord = newStego;
                 break;
 
             case REDMAGICZORD:
                 RedMagicZord newRedmagic = new RedMagicZord();
                 redMagicZords.add(newRedmagic); // CRITICAL: Adiciona ao Set estático
-                newZord = newRedmagic;
+                newWorkZord = newRedmagic;
                 break;
 
             case TRICERAZORD:
                 TriceraZord newTricera = new TriceraZord();
                 triceraZords.add(newTricera); // CRITICAL: Adiciona ao Set estático
-                newZord = newTricera;
+                newWorkZord = newTricera;
                 break;
 
             default:
                 println("Tipo de Zord não reconhecido: " + type);
                 return null;
         }
-        return (T) newZord;
+        return (T) newWorkZord;
     }
 
     /**
@@ -59,7 +59,7 @@ public class ZordCreate {
      * @param function A Função (BUILDER, FIGHTER, MINER) salva no arquivo.
      * @return A nova instância do Zord reconstruído.
      */
-    public Zord createZordByLoad(ZordFunction function) {
+    public WorkZord createZordByLoad(ZordFunction function) {
         // O código de Load é simplificado porque a função é o principal diferenciador.
         // Assumimos que cada função só tem um Zord correspondente.
 

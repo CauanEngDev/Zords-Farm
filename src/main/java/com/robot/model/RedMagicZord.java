@@ -11,7 +11,7 @@ import static com.robot.enums.ZordFunction.*;
 import static com.robot.utils.FileFuction.loadingImageSprite;
 
 
-public class RedMagicZord extends Zord {
+public class RedMagicZord extends WorkZord {
     private static final Image RMZ_IMAGE_IDLE = loadingImageSprite("/RedMagicZord/RedMagicIdle.png");
     private static final Image RMZ_IMAGE_WALKING = loadingImageSprite("/RedMagicZord/RedMagicWalking.png");
     private static final Image RMZ_IMAGE_FIGHTING = loadingImageSprite("/RedMagicZord/RedMagicFighting.png");

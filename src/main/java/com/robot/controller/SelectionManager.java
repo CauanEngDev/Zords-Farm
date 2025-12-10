@@ -3,7 +3,7 @@ package com.robot.controller;
 import com.robot.GameApp;
 import com.robot.Interfaces.ISelectable;
 import com.robot.model.TitanusFabric;
-import com.robot.model.Zord;
+import com.robot.model.WorkZord;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -21,10 +21,10 @@ public class SelectionManager {
         this.app = app;
     }
 
-    public void setupInputHandlers(Set<? extends Zord> allZords, TitanusFabric titanusFabric) {
+    public void setupInputHandlers(Set<? extends WorkZord> allZords, TitanusFabric titanusFabric) {
         if (allZords != null && !allZords.isEmpty()) {
-            for (Zord zord : allZords)
-                registerUnitClick(zord);
+            for (WorkZord workZord : allZords)
+                registerUnitClick(workZord);
         }
 
         registerUnitClick(titanusFabric);
@@ -34,8 +34,8 @@ public class SelectionManager {
                 double worldTargetX = event.getX() - app.getWorld().getTranslateX();
                 double worldTargetY = event.getY() -  app.getWorld().getTranslateY();
 
-                if (selectedEntity instanceof Zord) {
-                    Zord selectedZord = (Zord) selectedEntity;
+                if (selectedEntity instanceof WorkZord) {
+                    WorkZord selectedZord = (WorkZord) selectedEntity;
 
                     double adjustedX = worldTargetX - selectedZord.getImageView().getBoundsInParent().getWidth() / 2;
                     double adjustedY = worldTargetY - selectedZord.getImageView().getBoundsInParent().getHeight() / 2;

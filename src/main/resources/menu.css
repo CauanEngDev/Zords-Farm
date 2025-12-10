@@ -1,0 +1,30 @@
+/* Aplica no layout raiz (por ex. VBox do menu) */
+.root {
+    -fx-background-color: linear-gradient(to bottom, #1e1e1e, #121212);
+    -fx-alignment: center;
+}
+
+/* Estilo geral dos botões do menu */
+.button {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 200px;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 8, 0.2, 0, 2);
+    -fx-border-color: transparent;
+}
+
+/* Efeito quando o mouse passa em cima */
+.button:hover {
+    -fx-background-color: #2563eb;
+}
+
+/* Quando o botão está pressionado */
+.button:pressed {
+    -fx-background-color: #1d4ed8;
+    -fx-translate-y: 1;
+}

@@ -1,5 +1,7 @@
 package com.robot;
 
+// IMPORTANTE!!!!! COLOQUE ISTO NAS CONFIGURAÇÕES DE RUN -> javafx:run
+
 import com.google.gson.Gson;
 import com.robot.controller.GameInitializer;
 import com.robot.controller.SaveController;
@@ -7,41 +9,43 @@ import com.robot.controller.SelectionManager;
 import com.robot.controller.ZordCreate;
 import com.robot.model.TriceraZord;
 import com.robot.model.TitanusFabric;
-import com.robot.model.Zord;
+import com.robot.model.WorkZord;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.CheckBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.scene.Group;
-import org.jetbrains.annotations.NotNull;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import static com.robot.Database.ZordsData.stegoZords;
 import static com.robot.Database.ZordsData.triceraZords;
-//import static com.robot.Database.ZordsData.stegoZords;
 import static com.robot.utils.GameFunction.clearGameWorld;
 
-/**
- * Classe principal da aplicação JavaFX e o orquestrador do jogo.
- * Gerencia a inicialização, o loop principal e o carregamento/salvamento do estado do mundo.
- */
 public class GameApp extends Application {
     private static final int TILE_GRID = 32;
     private final double moveSpeed = 4.0;
+
+    // --- VARIÁVEIS DO MENU ---
+    private Stage stage;
+    private Scene cenaMenu;
+    private Scene cenaJogo;
+    private MediaPlayer mediaPlayer;
+    private boolean podetocar = true;
 
     // --- VARIÁVEIS DO JOGO (MODELO) ---
     private TriceraZord initialTricera;
@@ -66,94 +70,119 @@ public class GameApp extends Application {
     private final ZordCreate zordCreate = new ZordCreate();
     private final GameInitializer gameInitializer = new GameInitializer();
     private VBox pauseMenu;
-    private boolean gamePaused = false; // Flag pra pausar o AnimationTimer
+    private boolean gamePaused = false;
+    private AnimationTimer gameLoop; // Para poder parar ao voltar pro menu
 
-
-    /**
-     * Ponto de entrada da aplicação JavaFX. Configura o Stage e a Scene.
-     * @param stage O Stage principal da aplicação (a Janela).
-     */
     @Override
-    public void start(@NotNull Stage stage) {
+    public void start(Stage primaryStage) {
+        this.stage = primaryStage;
+        criarMenu(); // Começa com o MENU
+    }
+
+    private void criarMenu() {
+        Button btnJogar = new Button("Jogar");
+        Button btnConfig = new Button("Configurações");
+        Button btnSair = new Button("Sair");
+
+        btnJogar.setOnAction(e -> iniciarJogo());
+        btnConfig.setOnAction(e -> abrirConfiguracoes());
+        btnSair.setOnAction(e -> stage.close());
+
+        VBox vbox = new VBox(20, btnJogar, btnConfig, btnSair);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setId("root");
+
+        cenaMenu = new Scene(vbox, 800, 600);
+        try {
+            cenaMenu.getStylesheets().add(getClass().getResource("/menu.css").toExternalForm());
+        } catch (Exception e) {
+            System.out.println("CSS não encontrado, continuando sem estilo...");
+        }
+
+        stage.setScene(cenaMenu);
+        stage.setTitle("Meu Jogo - Menu");
+        stage.show();
+    }
+
+    private void iniciarJogo() {
+        // === TODO O TEU CÓDIGO ATUAL DO JOGO AQUI (SEM MUDANÇA NENHUMA) ===
+
         // 1. INICIALIZAÇÃO DE UI E HIERARQUIA (ORDEM CRÍTICA)
         world = new Group();
-        this.root = new Pane(world); // Inicializa root DEPOIS do world
+        root = new Pane(world);
 
         // 2. CARREGAMENTO DO MAPA E ZORDS
-        // Adquirimos o mapa de colisão
-        this.collisionMap = GameInitializer.getCollisonMap(); // Se o GameInitializer for estático
+        collisionMap = GameInitializer.getCollisonMap();
         selectionManager = new SelectionManager(root, this);
 
         initialTricera = new TriceraZord();
-        titanusFabric = new TitanusFabric(this.world, this.selectionManager, this.collisionMap, TILE_GRID); // Passa dependências
+        titanusFabric = new TitanusFabric(world, selectionManager, collisionMap, TILE_GRID);
 
-        // 3. TENTA CARREGAR O JOGO
-        clearGameWorld(this.root); // O root AGORA está inicializado
+        clearGameWorld(root);
         triceraZords.add(initialTricera);
 
         if (!saveController.loadGame(titanusFabric, world)) {
             GameInitializer.initializeNewGame(initialTricera, titanusFabric, TILE_GRID);
-            // Adiciona entidades ao mundo (Layer World)
             world.getChildren().addAll(titanusFabric.getImageView(), initialTricera.getImageView());
         }
 
-
         int windowWidth = 1280;
         int windowHeight = 768;
-        Scene scene = new Scene(root, windowWidth, windowHeight);
+        cenaJogo = new Scene(root, windowWidth, windowHeight);
 
         // Desenha o mapa PNG (fundo)
         Image bg = new Image(getClass().getResourceAsStream("/Map/Mapa.png"));
         ImageView bgView = new ImageView(bg);
         bgView.setLayoutX(0);
         bgView.setLayoutY(0);
-        world.getChildren().add(0, bgView); // Adiciona na posição 0 para ser o background
+        world.getChildren().add(0, bgView);
 
         // Inicializa o menu de pausa
         pauseMenu = createPauseMenu();
+        pauseMenu.layoutXProperty().bind(cenaJogo.widthProperty().subtract(pauseMenu.widthProperty()).divide(2));
+        pauseMenu.layoutYProperty().bind(cenaJogo.heightProperty().subtract(pauseMenu.heightProperty()).divide(2));
 
-        // Centraliza o menu (usando Bindings é mais robusto)
-        pauseMenu.layoutXProperty().bind(scene.widthProperty().subtract(pauseMenu.widthProperty()).divide(2));
-        pauseMenu.layoutYProperty().bind(scene.heightProperty().subtract(pauseMenu.heightProperty()).divide(2));
+        // === BOTÃO VOLTAR AO MENU (NOVO) ===
+        Button btnVoltarMenu = new Button("← Voltar ao Menu");
+        btnVoltarMenu.setStyle("-fx-background-color: rgba(255,0,0,0.8); -fx-text-fill: white; -fx-font-size: 16px;");
+        btnVoltarMenu.setLayoutX(10);
+        btnVoltarMenu.setLayoutY(10);
+        btnVoltarMenu.setOnAction(e -> {
+            if (gameLoop != null) gameLoop.stop();
+            stage.setScene(cenaMenu);
+            stage.setTitle("Meu Jogo - Menu");
+        });
+        root.getChildren().add(btnVoltarMenu);
 
         // Controle de câmera e input
         Set<KeyCode> pressedKeys = new HashSet<>();
-        scene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ESCAPE)
-                togglePause(!gamePaused);
+        cenaJogo.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) togglePause(!gamePaused);
             pressedKeys.add(e.getCode());
         });
-        scene.setOnKeyReleased(e -> pressedKeys.remove(e.getCode()));
+        cenaJogo.setOnKeyReleased(e -> pressedKeys.remove(e.getCode()));
 
-
-        // Inicializa o registro de cliques
         selectionManager.setupInputHandlers(triceraZords, titanusFabric);
+        selectionManager.setupInputHandlers(stegoZords, titanusFabric);
 
         // 7. O GAME LOOP (O CORAÇÃO DO JOGO)
-        AnimationTimer gameLoop = new AnimationTimer() {
+        gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                // --- 7.1 LÓGICA DA CÂMERA ---
                 double dxCam = 0;
                 double dyCam = 0;
 
                 if (gamePaused) return;
 
                 if (pressedKeys.contains(KeyCode.W)) dyCam += cameraSpeed;
-
                 if (pressedKeys.contains(KeyCode.S)) dyCam -= cameraSpeed;
-
                 if (pressedKeys.contains(KeyCode.A)) dxCam += cameraSpeed;
-
                 if (pressedKeys.contains(KeyCode.D)) dxCam -= cameraSpeed;
 
-                // limites: não deixar sair para além do mapa
-
                 double maxOffsetX = 0;
-                double minOffsetX = windowWidth - bg.getWidth(); // negativo
-
+                double minOffsetX = windowWidth - bg.getWidth();
                 double maxOffsetY = 0;
-                double minOffsetY = windowHeight - bg.getHeight(); // negativo
+                double minOffsetY = windowHeight - bg.getHeight();
 
                 cameraX = clamp(cameraX + dxCam, minOffsetX, maxOffsetX);
                 cameraY = clamp(cameraY + dyCam, minOffsetY, maxOffsetY);
@@ -161,39 +190,37 @@ public class GameApp extends Application {
                 world.setTranslateX(cameraX);
                 world.setTranslateY(cameraY);
 
-                // --- 7.2 LÓGICA DO EXÉRCITO ---
-                Set<Zord> allZords = new HashSet<>();
-                allZords.addAll(triceraZords);
+                Set<WorkZord> allWorkZords = new HashSet<>();
+                allWorkZords.addAll(triceraZords);
+                allWorkZords.addAll(stegoZords);
 
-                for (Zord zord : allZords) {
-                    ImageView zordView = zord.getImageView();
+                for (WorkZord workZord : allWorkZords) {
+                    ImageView zordView = workZord.getImageView();
                     double currentX = zordView.getLayoutX();
                     double currentY = zordView.getLayoutY();
 
-                    double targetX = zord.getTargetX();
-                    double targetY = zord.getTargetY();
+                    double targetX = workZord.getTargetX();
+                    double targetY = workZord.getTargetY();
 
                     if (targetX != currentX || targetY != currentY) {
-                        double deltax  = targetX - currentX;
+                        double deltax = targetX - currentX;
                         double deltay = targetY - currentY;
                         double distance = Math.sqrt(Math.pow(deltax, 2) + Math.pow(deltay, 2));
 
                         if (distance < moveSpeed) {
                             zordView.setLayoutX(targetX);
                             zordView.setLayoutY(targetY);
-                            zord.showIdleAnimation();
+                            workZord.showIdleAnimation();
                         } else {
                             if (targetX < currentX) zordView.setScaleX(-1.0);
                             else if (targetX > currentX) zordView.setScaleX(1.0);
 
-                            double stepX = (deltax/distance) * moveSpeed;
-                            double stepY = (deltay/distance) * moveSpeed;
-
-                            //Aqui viria checagem de colisão mas não conseguimos implemetar
+                            double stepX = (deltax / distance) * moveSpeed;
+                            double stepY = (deltay / distance) * moveSpeed;
 
                             zordView.setLayoutX(currentX + stepX);
                             zordView.setLayoutY(currentY + stepY);
-                            zord.showWalkAnimation();
+                            workZord.showWalkAnimation();
                         }
                     }
                 }
@@ -202,26 +229,64 @@ public class GameApp extends Application {
 
         gameLoop.start();
 
+        stage.setScene(cenaJogo);
         stage.setTitle("Meu teste de refatoração");
-        stage.setScene(scene);
-        stage.show();
+        root.requestFocus();
+
+        // === MÚSICA DO MENU ===
+        if (mediaPlayer == null) {
+            URL url = getClass().getResource("/musica.mp3");
+            System.out.println("URL musica = " + url);
+            if (url == null) {
+                System.out.println("musica.mp3 NÃO encontrado no classpath!");
+            } else {
+                Media media = new Media(url.toExternalForm());
+                mediaPlayer = new MediaPlayer(media);
+                mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            }
+        }
+        if (podetocar) {
+            mediaPlayer.play();
+        }
     }
 
+    private void abrirConfiguracoes() {
+        VBox vboxConfig = new VBox(20);
+        vboxConfig.setAlignment(Pos.CENTER);
+        vboxConfig.setId("root");
 
-    /**
-     * Método auxiliar para calcular limites (clamp) de movimento.
-     * @param value O valor atual.
-     * @param min O valor mínimo permitido.
-     * @param max O valor máximo permitido.
-     * @return O valor limitado entre min e max.
-     */
+        CheckBox chkMusica = new CheckBox("Habilitar Música");
+        chkMusica.setSelected(true);
+        chkMusica.setId("chk-musica");
+
+        Button btnVoltar = new Button("Voltar");
+        btnVoltar.setId("btn-voltar");
+
+        chkMusica.setOnAction(e -> {
+            podetocar = chkMusica.isSelected();
+            System.out.println("Música: " + (podetocar ? "LIGADA" : "DESLIGADA"));
+        });
+
+        btnVoltar.setOnAction(e -> stage.setScene(cenaMenu));
+
+        vboxConfig.getChildren().addAll(chkMusica, btnVoltar);
+
+        Scene cenaConfig = new Scene(vboxConfig, 800, 600);
+        try {
+            cenaConfig.getStylesheets().add(getClass().getResource("/menu.css").toExternalForm());
+        } catch (Exception e) {
+            System.out.println("CSS não encontrado...");
+        }
+
+        stage.setScene(cenaConfig);
+        stage.setTitle("Meu Jogo - Configurações");
+    }
+
+    // === MÉTODOS DO JOGO (SEM MUDANÇA) ===
     private double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
 
-    /**
-     * Remove o VBox de informações da tela e zera a referência.
-     */
     public void hideInfoBox() {
         if (this.infoBox != null && this.root != null) {
             this.root.getChildren().remove(this.infoBox);
@@ -229,33 +294,20 @@ public class GameApp extends Application {
         }
     }
 
-    /**
-     * Retorna a referência ao Grupo do mundo (camada visual do jogo).
-     * @return O objeto Group que contém todas as entidades e o mapa.
-     */
     public Group getWorld() {
         return this.world;
     }
 
-    // Em GameApp.java (Adicione este método)
-
-    /**
-     * Cria o VBox (o menu) com os botões Salvar e Sair.
-     * @return O VBox pronto para ser adicionado à cena.
-     */
     private VBox createPauseMenu() {
-        // 1. Botão de Salvar
         Button btnSave = new Button("Salvar Jogo");
         btnSave.setOnAction(e -> {
             saveController.saveGame(titanusFabric);
-            togglePause(false); // Despausa e volta ao jogo
+            togglePause(false);
         });
 
-        // 2. Botão de Sair
         Button btnExit = new Button("Sair do Jogo");
         btnExit.setOnAction(e -> Platform.exit());
 
-        // 3. Layout e Estilo (Centraliza os botões)
         VBox menuBox = new VBox(20, btnSave, btnExit);
         menuBox.setStyle("-fx-background-color: rgba(0, 0, 0, 0.9); -fx-padding: 30; -fx-background-radius: 10;");
         menuBox.setAlignment(Pos.CENTER);
@@ -265,22 +317,15 @@ public class GameApp extends Application {
 
     private void togglePause(boolean pauseState) {
         this.gamePaused = pauseState;
-
         if (pauseState) {
-            // Pausando: Adiciona o menu ao topo do root
             if (!root.getChildren().contains(pauseMenu)) {
                 root.getChildren().add(pauseMenu);
             }
         } else {
-            // Despausando: Remove o menu
             root.getChildren().remove(pauseMenu);
         }
     }
 
-    /**
-     * Ponto de entrada principal do Java (apenas lança o aplicativo).
-     * @param args Argumentos de linha de comando.
-     */
     public static void main(String[] args) {
         launch(args);
     }

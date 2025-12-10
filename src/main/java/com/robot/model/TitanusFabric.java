@@ -8,7 +8,6 @@ import com.robot.controller.SelectionManager;
 import com.robot.controller.ZordCreate; // Necessário para a função zordSpawn
 import com.robot.enums.Zords;
 import com.robot.utils.SpriteAnimator;
-import javafx.geometry.Bounds;
 import javafx.geometry.Side;
 import javafx.scene.Group;
 import javafx.scene.control.*;
@@ -28,6 +27,7 @@ public class TitanusFabric implements IAnimatable, ISelectable {
     private static final String name = "TitanusZord Fabric";
     private int titanusLevel = 1;
     public int numTriceras = 3;
+    public int numStegos = 3;
     private boolean selected;
 
     // --- DEPENDÊNCIAS DO CONTEXTO DE JOGO ---
@@ -123,8 +123,7 @@ public class TitanusFabric implements IAnimatable, ISelectable {
             root.getChildren().removeIf(node -> node instanceof VBox);
         }
 
-        MenuItem stegoItem = new MenuItem("Construtor (Coming Soon)");
-        stegoItem.setDisable(true);
+        MenuItem stegoItem = new MenuItem("Construtor");
         MenuItem redMagicItem = new MenuItem("Combatente (Coming Soon)");
         redMagicItem.setDisable(true);
         MenuItem triceraItem = new MenuItem("Minerador");
@@ -137,6 +136,12 @@ public class TitanusFabric implements IAnimatable, ISelectable {
             triceraItem.setText("Minerador (Limite alcançado)");
         }
 
+        boolean stegoLimit = stegoZords.size() >= numStegos;
+        if (stegoLimit) {
+            stegoItem.setDisable(true);
+            stegoItem.setText("Construtor (Limite Alcançado)");
+        }
+
         VBox newInfoBox = new VBox(5);
         newInfoBox.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 10; -fx-background-radius: 10;");
 
@@ -146,8 +151,8 @@ public class TitanusFabric implements IAnimatable, ISelectable {
         Label lblLevel = new Label("Nível: " + titanusLevel);
         lblLevel.setStyle("-fx-text-fill: yellow;");
 
-//        Label lblStegos = new Label(stegoZords.size() + "/" + numStegos + " Construtores");
-//        lblStegos.setStyle("-fx-text-fill: white;");
+        Label lblStegos = new Label(stegoZords.size() + "/" + numStegos + " Construtores");
+        lblStegos.setStyle("-fx-text-fill: white;");
 
         Label lblTricera = new Label(triceraZords.size() + "/" + numTriceras + " Mineradores");
         lblTricera.setStyle("-fx-text-fill: white;");
@@ -161,9 +166,10 @@ public class TitanusFabric implements IAnimatable, ISelectable {
         btnLevelUp.setOnAction(event -> {
             levelUp();
             lblLevel.setText("Nível: " + titanusLevel);
-//                numStegos += 1;
+            numStegos += 1;
             numTriceras += 1;
             showInfoBox(root, x, y);
+            selectionManager.deselectCurrent();
         });
 
         Button btnCreateZord = new Button("Criar Zord  >");
@@ -171,14 +177,9 @@ public class TitanusFabric implements IAnimatable, ISelectable {
             createMenu.show(btnCreateZord, Side.BOTTOM, 0, 0);
         });
 
-//        stegoItem.setOnAction(event -> {
-//                createController.createZordByTitanus(Zords.STEGOZORD);
-//                createMenu.hide();
-//        });
-
-        triceraItem.setOnAction(event -> {
+        stegoItem.setOnAction(event -> {
             getAnimator().setActionOnFrame(17, () -> {
-                zordSpawn(Zords.TRICERAZORD);
+                zordSpawn(Zords.STEGOZORD);
             });
 
             getAnimator().setActionOnFinish(() -> {
@@ -190,7 +191,19 @@ public class TitanusFabric implements IAnimatable, ISelectable {
             selectionManager.deselectCurrent();
         });
 
-        newInfoBox.getChildren().addAll(lblName, lblLevel, lblTricera, btnCreateZord, btnLevelUp);
+        triceraItem.setOnAction(event -> {
+            getAnimator().setActionOnFrame(17, () -> {
+                zordSpawn(Zords.TRICERAZORD);
+            });
+
+            getAnimator().setActionOnFinish(this::showIdleAnimation);
+
+            showCreateAnimation();
+            createMenu.hide();
+            selectionManager.deselectCurrent();
+        });
+
+        newInfoBox.getChildren().addAll(lblName, lblLevel, lblStegos, lblTricera, btnCreateZord, btnLevelUp);
 
         // Posicionamento
         newInfoBox.setLayoutX(this.getImageView().getLayoutX() + 40);
@@ -207,18 +220,18 @@ public class TitanusFabric implements IAnimatable, ISelectable {
      */
     private void zordSpawn(Zords type) {
         // NOTA: O ZordCreate é a dependência que cria a instância.
-        Zord newZord = new ZordCreate().createZordByTitanus(type);
+        WorkZord newWorkZord = new ZordCreate().createZordByTitanus(type);
 
         // O Titanus é o ponto de ancoragem para o spawn
         double spawnX = this.getImageView().getLayoutX() - 90; // Posição de Spawn (Ex: na frente do Titanus)
         double spawnY = this.getImageView().getLayoutY() + 70;
 
-        ImageView newZordSprite = newZord.getImageView();
+        ImageView newZordSprite = newWorkZord.getImageView();
 
         // 1. POSICIONAMENTO E ADIÇÃO AO WORLD
         newZordSprite.setLayoutX(spawnX);
         newZordSprite.setLayoutY(spawnY);
-        newZord.setTarget(spawnX, spawnY);
+        newWorkZord.setTarget(spawnX, spawnY);
 
         // Adiciona ao Grupo (o mundo da câmera)
         this.world.getChildren().add(newZordSprite);
@@ -233,7 +246,7 @@ public class TitanusFabric implements IAnimatable, ISelectable {
         }
 
         // 3. REGISTRO DE CLIQUE (TORNA O NOVO ZORD CLICÁVEL)
-        selectionManager.registerUnitClick(newZord);
+        selectionManager.registerUnitClick(newWorkZord);
     }
 
     // --- GETTERS E SETTERS DE ESTADO ---

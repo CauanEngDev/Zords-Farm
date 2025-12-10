@@ -10,7 +10,7 @@ import javafx.scene.layout.VBox;
 import static com.robot.enums.ZordFunction.*;
 import static com.robot.utils.FileFuction.*;
 
-public class StegoZord extends Zord {
+public class StegoZord extends WorkZord {
     // Carregamento de Assets
     private static final Image STEGO_IMAGE_IDLE = loadingImageSprite("/StegoZord/StegoIdle.png");
     private static final Image STEGO_IMAGE_WALKING = loadingImageSprite("/StegoZord/StegoWalking.png");

@@ -5,8 +5,6 @@ import com.robot.Interfaces.ISelectable;
 import com.robot.enums.ZordFunction;
 import static com.robot.enums.AnimationState.*;
 import com.robot.utils.SpriteAnimator;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -16,7 +14,7 @@ import javafx.scene.layout.VBox;
  * Classe Abstrata base para todos os Zords.
  * Implementa a lógica de animação (Composição) e o contrato de Seleção.
  */
-public abstract class Zord implements IAnimatable, ISelectable {
+public abstract class WorkZord implements IAnimatable, ISelectable {
     protected ImageView zordImageView;
     protected final String name;
     protected ZordFunction function;
@@ -30,7 +28,7 @@ public abstract class Zord implements IAnimatable, ISelectable {
     /**
      * Construtor para inicializar o Zord com seus assets e função.
      */
-    public Zord(Image zordImageIdle, Image zordImageWalking, Image zordImageWork, String name,  ZordFunction function) {
+    public WorkZord(Image zordImageIdle, Image zordImageWalking, Image zordImageWork, String name, ZordFunction function) {
         this.zordImageView = new ImageView(zordImageIdle);
         this.name = name;
         this.function = function;
