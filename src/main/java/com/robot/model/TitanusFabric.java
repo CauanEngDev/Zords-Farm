@@ -23,90 +23,25 @@ import static com.robot.enums.AnimationState.*;
  * Gerencia a produção de unidades, a sua animação e a exibição de suas informações.
  * Implementa IAnimatable e ISelectable.
  */
-public class TitanusFabric implements IAnimatable, ISelectable {
+public class TitanusFabric extends EdificeZord {
     private static final String name = "TitanusZord Fabric";
+    private static final Image TITANUS_IDLE_SPRITE = loadingImageSprite("/TitanusFabric/TitanusIdle.png");
+    private static final Image TITANUS_CREATE_SPRITE = loadingImageSprite("/TitanusFabric/TitanusCreate.png");
     private int titanusLevel = 1;
     public int numTriceras = 3;
     public int numStegos = 3;
-    private boolean selected;
 
     // --- DEPENDÊNCIAS DO CONTEXTO DE JOGO ---
-    private final Group world; // Camada visual principal (câmera)
-    private final SelectionManager selectionManager;
     private final int[][] collisionMap;
     private final int tileGrid;
-
-    // --- ESTADO VISUAL E ANIMAÇÃO ---
-    private final ImageView titanusImageView;
-    private final SpriteAnimator animator;
 
     /**
      * Construtor, injetando as dependências do mundo.
      */
     public TitanusFabric(Group world, SelectionManager selectionManager, int[][] collisionMap, int tileGrid) {
-        this.world = world;
-        this.selectionManager = selectionManager;
+        super(world, selectionManager, name, TITANUS_IDLE_SPRITE, TITANUS_CREATE_SPRITE);
         this.collisionMap = collisionMap;
         this.tileGrid = tileGrid;
-
-        Image titanusIdle = loadingImageSprite("/TitanusFabric/TitanusIdle.png");
-        this.titanusImageView = new ImageView(titanusIdle);
-        Image titanusCreate = loadingImageSprite("/TitanusFabric/TitanusCreate.png");
-
-        // Configuração visual padrão (o scale foi movido para o GameApp)
-        this.titanusImageView.setScaleX(1);
-        this.titanusImageView.setScaleY(1);
-        this.titanusImageView.setPreserveRatio(true);
-        this.titanusImageView.setPickOnBounds(false);
-
-        this.animator = new SpriteAnimator(titanusImageView);
-
-        // Adiciona e inicia as animações
-        this.animator.addAnimation(IDLE, titanusIdle);
-        this.animator.addAnimation(WORKING, titanusCreate);
-
-        this.animator.play(IDLE);
-    }
-
-    // --- MÉTODOS DE ANIMAÇÃO E ESTADO ---
-
-    @Override
-    public SpriteAnimator getAnimator() {
-        return this.animator;
-    }
-
-    public void showIdleAnimation() {
-        this.animator.play(IDLE);
-    }
-
-    public void showCreateAnimation() {
-        this.animator.playOneShot(WORKING);
-    }
-
-    // --- MÉTODOS ISELECTABLE ---
-
-    @Override
-    public void select() {
-        if (selected) return;
-        selected = true;
-        this.titanusImageView.setStyle("-fx-effect: dropshadow(three-pass-box, yellow, 10, 0.5, 0, 0);");
-    }
-
-    @Override
-    public void deselect() {
-        if (!selected) return;
-        selected = false;
-        this.titanusImageView.setStyle(null);
-    }
-
-    @Override
-    public boolean isSelected() {
-        return selected;
-    }
-
-    @Override
-    public ImageView getImageView() {
-        return titanusImageView;
     }
 
     /**
@@ -186,7 +121,7 @@ public class TitanusFabric implements IAnimatable, ISelectable {
                 showIdleAnimation();
             });
 
-            showCreateAnimation();
+            showWorkAnimation();
             createMenu.hide();
             selectionManager.deselectCurrent();
         });
@@ -198,7 +133,7 @@ public class TitanusFabric implements IAnimatable, ISelectable {
 
             getAnimator().setActionOnFinish(this::showIdleAnimation);
 
-            showCreateAnimation();
+            showWorkAnimation();
             createMenu.hide();
             selectionManager.deselectCurrent();
         });
@@ -247,19 +182,5 @@ public class TitanusFabric implements IAnimatable, ISelectable {
 
         // 3. REGISTRO DE CLIQUE (TORNA O NOVO ZORD CLICÁVEL)
         selectionManager.registerUnitClick(newWorkZord);
-    }
-
-    // --- GETTERS E SETTERS DE ESTADO ---
-
-    public int getLevel() {
-        return titanusLevel;
-    }
-
-    public void setLevel(int titanusLevel) {
-        this.titanusLevel = titanusLevel;
-    }
-
-    public void levelUp() {
-        this.titanusLevel++;
     }
 }

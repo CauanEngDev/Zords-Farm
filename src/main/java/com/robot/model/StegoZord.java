@@ -14,7 +14,7 @@ public class StegoZord extends WorkZord {
     // Carregamento de Assets
     private static final Image STEGO_IMAGE_IDLE = loadingImageSprite("/StegoZord/StegoIdle.png");
     private static final Image STEGO_IMAGE_WALKING = loadingImageSprite("/StegoZord/StegoWalking.png");
-    private static final Image STEGO_IMAGE_WORKING = loadingImageSprite("/StegoZord/StegoBuilding.png"); // <-- Corrigida a barra final
+    private static final Image STEGO_IMAGE_WORKING = loadingImageSprite("/StegoZord/StegoBuilding.png");
 
     public StegoZord() {
         super(STEGO_IMAGE_IDLE, STEGO_IMAGE_WALKING, STEGO_IMAGE_WORKING, "Stego Zord", BUILDER);
