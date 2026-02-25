@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3 uid="uid://blw4tjbac12h1"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_kw1np"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"Zord_Idle",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"Zord_Walking",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"Zord_Working",
+"speed": 5.0
+}]
+
+[node name="CharacterBody2D" type="CharacterBody2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_kw1np")
+animation = &"Zord_Idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
