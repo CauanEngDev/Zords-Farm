@@ -1,6 +1,6 @@
-[gd_scene load_steps=115 format=3 uid="uid://4gfm5g0gaphc"]
+[gd_scene format=3 uid="uid://4gfm5g0gaphc"]
 
-[ext_resource type="PackedScene" uid="uid://blw4tjbac12h1" path="res://Zords/BaseZord/basezord.tscn" id="1_6oy3o"]
+[ext_resource type="PackedScene" uid="uid://blw4tjbac12h1" path="res://Zords/BaseModels/BaseRobot/baserobot.tscn" id="1_6oy3o"]
 [ext_resource type="Texture2D" uid="uid://cbg4gonxspbth" path="res://Resources/StegoZord/StegoIdle.png" id="2_mpri7"]
 [ext_resource type="Texture2D" uid="uid://b7sdlfxxogran" path="res://Resources/StegoZord/StegoWalking.png" id="3_vafga"]
 [ext_resource type="Texture2D" uid="uid://rq0ipc4qxict" path="res://Resources/StegoZord/StegoBuilding.png" id="4_6wiku"]
@@ -782,13 +782,13 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5jivm"]
 size = Vector2(69, 36)
 
-[node name="CharacterBody2D" instance=ExtResource("1_6oy3o")]
+[node name="CharacterBody2D" unique_id=408731543 instance=ExtResource("1_6oy3o")]
+display_name = "StegoZord"
 
-[node name="AnimatedSprite2D" parent="." index="1"]
+[node name="AnimatedSprite2D" parent="." index="0" unique_id=632660826]
 sprite_frames = SubResource("SpriteFrames_48abx")
 animation = &"Zord_Working"
 frame_progress = 0.864578
 
-[node name="CollisionShape2D" parent="." index="2"]
-position = Vector2(0.5, 0)
+[node name="CollisionShape2D" parent="." index="1" unique_id=1504872578]
 shape = SubResource("RectangleShape2D_5jivm")

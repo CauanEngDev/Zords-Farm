@@ -1,6 +1,6 @@
 [gd_scene load_steps=115 format=3 uid="uid://bndessytg5yw"]
 
-[ext_resource type="PackedScene" uid="uid://blw4tjbac12h1" path="res://Zords/BaseZord/basezord.tscn" id="1_81d26"]
+[ext_resource type="PackedScene" uid="uid://blw4tjbac12h1" path="res://Zords/BaseModels/BaseRobot/baserobot.tscn" id="1_81d26"]
 [ext_resource type="Texture2D" uid="uid://b0lga4fjr3tae" path="res://Resources/RedMagicZord/RedMagicIdle.png" id="2_h00g7"]
 [ext_resource type="Texture2D" uid="uid://bmwrm0swhcphs" path="res://Resources/RedMagicZord/RedMagicWalking.png" id="3_fxmqs"]
 [ext_resource type="Texture2D" uid="uid://bbk3d1jpfepto" path="res://Resources/RedMagicZord/RedMagicFighting.png" id="4_7rofr"]
@@ -783,6 +783,7 @@ animations = [{
 size = Vector2(67, 66)
 
 [node name="CharacterBody2D" instance=ExtResource("1_81d26")]
+position = Vector2(377, 196)
 
 [node name="AnimatedSprite2D" parent="." index="1"]
 sprite_frames = SubResource("SpriteFrames_w1m3a")

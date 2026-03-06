@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://pqieaxrjusvy"]
+
+[node name="Control" type="Control" unique_id=986782795]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="InfoBox" type="PanelContainer" parent="." unique_id=717098126]
+layout_mode = 0
+offset_left = 360.0
+offset_top = 217.0
+offset_right = 757.0
+offset_bottom = 411.0

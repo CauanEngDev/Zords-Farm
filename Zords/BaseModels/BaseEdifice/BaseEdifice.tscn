@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://wqirexdcsktu"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_n0a2b"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"Edifice_Idle",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"Edifice_Working",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1w1lk"]
+
+[node name="CharacterBody2D" type="CharacterBody2D"]
+position = Vector2(563, 337)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_n0a2b")
+animation = &"Edifice_Working"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1w1lk")

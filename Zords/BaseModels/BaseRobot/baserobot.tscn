@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://blw4tjbac12h1"]
+
+[ext_resource type="Script" uid="uid://csvigi38jyy6y" path="res://Zords/BaseModels/BaseRobot/baserobot.gd" id="1_awl56"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_kw1np"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"Zord_Idle",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"Zord_Walking",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"Zord_Working",
+"speed": 5.0
+}]
+
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=2107531715]
+input_pickable = true
+script = ExtResource("1_awl56")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=632660826]
+sprite_frames = SubResource("SpriteFrames_kw1np")
+animation = &"Zord_Idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1504872578]
