@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bqq3s1ooxioib"]
+
+[ext_resource type="Script" uid="uid://crghvfga6ym5a" path="res://World/world.gd" id="1_8a836"]
+[ext_resource type="PackedScene" uid="uid://4gfm5g0gaphc" path="res://Zords/Robots/Stegozord/stegozord.tscn" id="1_62w18"]
+
+[node name="World" type="Node2D" unique_id=385381392]
+script = ExtResource("1_8a836")
+
+[node name="StegoZord" parent="." unique_id=408731543 instance=ExtResource("1_62w18")]
