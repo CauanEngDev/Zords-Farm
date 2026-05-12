@@ -23,6 +23,9 @@ animations = [{
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=2107531715]
 input_pickable = true
 script = ExtResource("1_awl56")
+display_name = null
+energy = null
+speed = null
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=632660826]
 sprite_frames = SubResource("SpriteFrames_kw1np")

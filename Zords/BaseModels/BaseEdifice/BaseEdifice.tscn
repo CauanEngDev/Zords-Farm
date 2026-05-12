@@ -1,4 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://wqirexdcsktu"]
+[gd_scene format=3 uid="uid://wqirexdcsktu"]
+
+[ext_resource type="Script" uid="uid://cluc4kn6enjtr" path="res://Zords/BaseModels/BaseEdifice/base_edifice.gd" id="1_myv8f"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_n0a2b"]
 animations = [{
@@ -15,14 +17,15 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1w1lk"]
 
-[node name="CharacterBody2D" type="CharacterBody2D"]
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1162011526]
 position = Vector2(563, 337)
+script = ExtResource("1_myv8f")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1872753870]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=746487329]
 sprite_frames = SubResource("SpriteFrames_n0a2b")
 animation = &"Edifice_Working"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1252423592]
 shape = SubResource("RectangleShape2D_1w1lk")
